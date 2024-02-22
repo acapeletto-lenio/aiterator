@@ -80,7 +80,7 @@
             <button
               class="delete generate"
               @click="getReply(parent)"
-              :disabled="$state.apiKey !== ''"
+              :disabled="$state.apiKey === ''"
             >
               Generate
             </button>

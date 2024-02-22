@@ -39,7 +39,7 @@
         <div class="left-toolbar">
           <button
             class="refresh-btn generate-btn"
-            :disabled="$state.apiKey !== ''"
+            :disabled="$state.apiKey === ''"
           >
             Generate Design 🤖
           </button>
