@@ -161,6 +161,9 @@ export default {
       markSpacing: 5,
     };
   },
+  created() {
+    console.log(process);
+  },
   methods: {
     handleAdd() {
       this.$state.savedBlocks.push({
