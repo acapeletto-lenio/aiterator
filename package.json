@@ -1,0 +1,26 @@
+{
+  "name": "aiterator",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "node --experimental-json-modules scripts/generateDb && nuxt generate",
+    "regenerate": "node --experimental-json-modules scripts/generateDb"
+  },
+  "dependencies": {
+    "core-js": "^3.19.3",
+    "module-alias": "^2.2.2",
+    "nuxt": "^2.15.8",
+    "sass": "^1.45.1",
+    "sass-loader": "10.1.1",
+    "vue": "^2.6.14",
+    "vue-server-renderer": "2.6.14",
+    "vue-template-compiler": "2.6.14",
+    "webpack": "^4.46.0"
+  },
+  "_moduleAliases": {
+    "@parsers": "scripts/parsers.js"
+  }
+}
