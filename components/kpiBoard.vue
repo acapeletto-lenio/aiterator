@@ -77,7 +77,11 @@
               v-if="item.generatedHtml != ''"
             ></button>
 
-            <button class="delete generate" @click="getReply(parent)">
+            <button
+              class="delete generate"
+              @click="getReply(parent)"
+              :disabled="$state.apiKey !== ''"
+            >
               Generate
             </button>
           </div>
@@ -110,7 +114,7 @@
               <input
                 placeholder="Enter prompt..."
                 v-model="savedCells[parent].promptText"
-                @keyup.enter="getReply(parent)"
+                @keyup.enter="savedCells[parent].selectedTool = 'prompt'"
               />
             </div>
           </div>

@@ -37,7 +37,10 @@
     <div class="content-container">
       <div class="toolbar">
         <div class="left-toolbar">
-          <button class="refresh-btn generate-btn" disabled>
+          <button
+            class="refresh-btn generate-btn"
+            :disabled="$state.apiKey !== ''"
+          >
             Generate Design 🤖
           </button>
           <button class="refresh-btn">
