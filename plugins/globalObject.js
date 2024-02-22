@@ -3,6 +3,7 @@ import Vue from "vue";
 var state = {
   updated: 0,
   isOpen: false,
+  apiKey: "",
   mainTool: "canvas",
   savedBlocks: [
     /*     {

@@ -41,7 +41,11 @@
             Generate Design 🤖
           </button>
           <button class="refresh-btn">
-            <input type="text" placeholder="OpenAI API Key..." />
+            <input
+              type="text"
+              placeholder="OpenAI API Key..."
+              v-model="$state.apiKey"
+            />
           </button>
         </div>
         <div class="right-toolbar">
