@@ -229,7 +229,7 @@ export default {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer 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`,
+            Authorization: `Bearer ${process.env.OPENAI}`,
           },
           body: JSON.stringify({
             model: "gpt-3.5-turbo",
