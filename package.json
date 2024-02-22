@@ -6,8 +6,7 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "node --experimental-json-modules scripts/generateDb && nuxt generate",
-    "regenerate": "node --experimental-json-modules scripts/generateDb"
+    "generate": "nuxt generate"
   },
   "dependencies": {
     "core-js": "^3.19.3",
@@ -19,8 +18,5 @@
     "vue-server-renderer": "2.6.14",
     "vue-template-compiler": "2.6.14",
     "webpack": "^4.46.0"
-  },
-  "_moduleAliases": {
-    "@parsers": "scripts/parsers.js"
   }
 }
