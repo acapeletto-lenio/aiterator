@@ -19,13 +19,13 @@ var state = {
       rowAmount: 6,
     }, */
     {
-      label: "Block #1",
+      label: "Grid #1",
       columnAmount: 12,
       rowHeightAmount: 50,
       rowAmount: 12,
     },
     {
-      label: "Block #2",
+      label: "Grid #2",
       columnAmount: 6,
       rowHeightAmount: 50,
       rowAmount: 4,

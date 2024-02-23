@@ -161,7 +161,7 @@
               v-model="gridData.rowAmount"
             />
           </p>
-          <textarea name="" id="" placeholder="Enter prompt..."></textarea>
+          <textarea name="" id="" placeholder="Add description..."></textarea>
           <!--           <p>{{ gridData.rowHeightAmount }}px</p>
  -->
         </div>
@@ -394,8 +394,8 @@ IMPORTANT:
     pointer-events: none;
     cursor: crosshair;
     position: relative;
-    border-right: 1px solid #eee;
-    border-bottom: 1px solid #eee;
+    border-right: 1px solid #e9e9e9;
+    border-bottom: 1px solid #e9e9e9;
     &.active {
       pointer-events: all;
       &:after {
@@ -445,7 +445,7 @@ IMPORTANT:
   > section {
     background: #fff;
 
-    outline: 1px solid #eee;
+    outline: 1px solid #e9e9e9;
     outline-offset: -1px;
 
     position: absolute;
@@ -621,7 +621,7 @@ input[type="number"] {
 }
 
 button input[type="text"] {
-  max-width: 180px;
+  min-width: 220px;
   padding-left: 0;
   border: 0;
   color: #ddd;
@@ -668,7 +668,7 @@ button input[type="text"] {
       content: "";
       width: 1px;
       height: 10px;
-      background: #ccc;
+      background: #bbb;
       display: block;
     }
     &:first-child:after {
@@ -699,9 +699,9 @@ button input[type="text"] {
   }
   &.left {
     //left: initial;
-    left: -160px;
+    left: -165px;
     border-top: 1px dashed #555;
-    width: 160px;
+    width: 165px;
     padding: 8px;
     padding-right: 10px;
     padding-left: 8px;
@@ -771,7 +771,7 @@ button input[type="text"] {
       content: "";
       height: 1px;
       width: 10px;
-      background: #ccc;
+      background: #bbb;
       display: block;
     }
     &:first-child:after {
