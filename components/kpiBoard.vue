@@ -111,8 +111,8 @@
             v-if="internalLoading != parent && item.selectedTool === 'prompt'"
           >
             <div>
-              <input
-                placeholder="Enter prompt..."
+              <textarea
+                placeholder="Area Name"
                 v-model="savedCells[parent].promptText"
                 @keyup.enter="savedCells[parent].selectedTool = 'prompt'"
               />
@@ -800,5 +800,16 @@ button input[type="text"] {
       margin-left: 5px;
     }
   }
+}
+
+.seleccionador textarea {
+  color: #888;
+  padding-top: 10px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  border: 0;
+  bottom: 0;
 }
 </style>

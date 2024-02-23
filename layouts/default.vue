@@ -61,34 +61,50 @@
                 d="M160-160v-80h110l-16-14q-52-46-73-105t-21-119q0-111 66.5-197.5T400-790v84q-72 26-116 88.5T240-478q0 45 17 87.5t53 78.5l10 10v-98h80v240H160Zm400-10v-84q72-26 116-88.5T720-482q0-45-17-87.5T650-648l-10-10v98h-80v-240h240v80H690l16 14q49 49 71.5 106.5T800-482q0 111-66.5 197.5T560-170Z"
               />
             </svg>
+            Restart
           </button>
           <!--           <button class="refresh-btn">
             Max Width <input type="number" placeholder="100%" />
           </button> -->
-          <button class="refresh-btn" disabled>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 -960 960 960"
-              width="24"
+          <div style="display: flex">
+            <button
+              class="refresh-btn"
+              :class="{ active: $state.mainTool === 'canvas' }"
+              @click="$state.mainTool = 'canvas'"
+              style="
+                border-right: 0;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+              "
             >
-              <path
-                d="M280-200v-80h284q63 0 109.5-40T720-420q0-60-46.5-100T564-560H312l104 104-56 56-200-200 200-200 56 56-104 104h252q97 0 166.5 63T800-420q0 94-69.5 157T564-200H280Z"
-              />
-            </svg>
-          </button>
-          <button class="refresh-btn" disabled>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 -960 960 960"
-              width="24"
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 -960 960 960"
+                width="24"
+              >
+                <path
+                  d="M320-160v-160H160v-80h160v-160H160v-80h160v-160h80v160h160v-160h80v160h160v80H640v160h160v80H640v160h-80v-160H400v160h-80Zm80-240h160v-160H400v160Z"
+                />
+              </svg>
+            </button>
+            <button
+              class="refresh-btn"
+              :class="{ active: $state.mainTool === 'preview' }"
+              @click="$state.mainTool = 'preview'"
             >
-              <path
-                d="M396-200q-97 0-166.5-63T160-420q0-94 69.5-157T396-640h252L544-744l56-56 200 200-200 200-56-56 104-104H396q-63 0-109.5 40T240-420q0 60 46.5 100T396-280h284v80H396Z"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 -960 960 960"
+                width="24"
+              >
+                <path
+                  d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="right-toolbar">
           <button class="refresh-btn" style="border: 0; padding: 0">
@@ -114,7 +130,11 @@
           </button>
         </div>
       </div>
-      <div class="fake-modal" v-if="$state.mainTool === 'export'">
+      <div
+        class="fake-modal"
+        style="display: none"
+        v-if="$state.mainTool === 'export'"
+      >
         <div class="backdrop" @click="$state.mainTool = 'canvas'"></div>
         <div class="fake-modal-content">
           <div class="fake-modal-close" @click="$state.mainTool = 'canvas'">
@@ -130,7 +150,11 @@
           </div>
         </div>
       </div>
-      <div class="fake-modal" v-if="$state.mainTool === 'prompt'">
+      <div
+        class="fake-modal"
+        style="display: none"
+        v-if="$state.mainTool === 'prompt'"
+      >
         <div class="backdrop" @click="$state.mainTool = 'canvas'"></div>
         <div class="fake-modal-content">
           <div class="fake-modal-close" @click="$state.mainTool = 'canvas'">
@@ -146,7 +170,43 @@
           </div>
         </div>
       </div>
-      <nuxt />
+      <template v-if="$state.mainTool === 'canvas'">
+        <nuxt />
+      </template>
+      <template v-if="$state.mainTool === 'preview'">
+        <div class="magic-preview">
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path
+              fill="#F2F4F8"
+              d="M44.3,-55.3C60,-49.6,77,-40.1,83.7,-25.7C90.4,-11.3,86.9,7.9,79.3,24.1C71.7,40.3,60.1,53.6,46.3,59.5C32.4,65.5,16.2,64.1,-0.1,64.3C-16.4,64.4,-32.9,66.2,-48.6,60.8C-64.3,55.5,-79.2,43,-83.8,27.5C-88.4,12,-82.7,-6.5,-76.8,-25C-70.8,-43.5,-64.7,-62.1,-51.9,-68.7C-39,-75.2,-19.5,-69.9,-2.6,-66.3C14.3,-62.8,28.6,-60.9,44.3,-55.3Z"
+              transform="translate(100 100)"
+            />
+          </svg>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              max-width: 200px;
+              margin: 0 auto;
+              justify-content: center;
+            "
+          >
+            <div style="font-size: 100px; text-align: center">🪄</div>
+            <div style="color: #666; text-align: center">
+              Define your grid and areas and click [Generate Design] to populate
+              this section.
+            </div>
+          </div>
+        </div>
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill="#F2F4F8"
+            d="M66.1,-38.2C78.2,-17.3,75.3,12.3,61.8,32.7C48.3,53,24.2,64.3,-1.8,65.3C-27.7,66.3,-55.5,57.2,-66.6,38.2C-77.7,19.2,-72.2,-9.7,-58.3,-31.6C-44.5,-53.6,-22.2,-68.7,2.4,-70.1C27,-71.5,54.1,-59.2,66.1,-38.2Z"
+            transform="translate(100 100)"
+          />
+        </svg>
+      </template>
     </div>
     <div class="mega-sidebar">
       <button class="refresh-btn generate-btn" :disabled="$state.apiKey === ''">
@@ -154,10 +214,11 @@
       </button>
       <div>
         <button class="export-btn" @click="$state.mainTool = 'export'">
-          Layout Code
+          Copy Code
         </button>
         <div class="recode-block">
           <pre v-pre><code>&lt;section style="
+  display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(12, 50px);
 "&gt;
@@ -170,8 +231,8 @@
         </div>
       </div>
       <div style="flex: 1">
-        <button @click="$state.mainTool = 'prompt'">AI Prompt</button>
-        <div class="recode-block" style="max-height: 100%">
+        <button @click="$state.mainTool = 'prompt'">Copy Prompt</button>
+        <div class="recode-block" style="max-height: 350px">
           "Design a user interface for a web application that leverages a grid
           layout with two main sections.
           <br /><br />
@@ -181,13 +242,15 @@
           second section, spanning from the third to the tenth row across all
           twelve columns, should be dedicated to a mix of articles, interviews,
           and photo essays, organized in a visually appealing manner that
-          encourages exploration and reading. Each article tile should include a
-          headline, a brief summary, and a thumbnail image. The layout should
-          prioritize readability, intuitive navigation, and should adapt
-          seamlessly to different screen sizes, from desktops to tablets and
-          mobile phones. Include interactive elements such as hover effects for
-          desktop users and touch feedback for mobile users, to enhance user
-          engagement and provide a modern, responsive user experience."
+          encourages exploration and reading.
+          <br /><br />
+          Each article tile should include a headline, a brief summary, and a
+          thumbnail image. The layout should prioritize readability, intuitive
+          navigation, and should adapt seamlessly to different screen sizes,
+          from desktops to tablets and mobile phones. Include interactive
+          elements such as hover effects for desktop users and touch feedback
+          for mobile users, to enhance user engagement and provide a modern,
+          responsive user experience."
         </div>
       </div>
 
@@ -411,9 +474,10 @@ header h1 {
 header h2 {
   color: #999;
   font-weight: normal;
-  font-size: 14px;
+  font-size: 13px;
   top: -1px;
   position: relative;
+  font-family: monospace;
 }
 
 header h1 span {
@@ -461,7 +525,7 @@ hr {
   gap: 10px;
   justify-content: space-between;
   button {
-    height: 36px;
+    height: 35px;
     //min-width: 100px;
     box-shadow: 0px 0px 0.9310142993927002px 0px rgba(0, 0, 0, 0.17),
       0px 0px 3.1270833015441895px 0px rgba(0, 0, 0, 0.08),
@@ -491,8 +555,9 @@ hr {
       border: 1px solid #666;
       min-width: max-content;
       color: #ddd;
+      &.active,
       &:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.25);
       }
       &.generate-btn {
         background: linear-gradient(45deg, #01579b, #388e3c);
@@ -617,7 +682,7 @@ button a {
 }
 
 .mega-sidebar {
-  width: 295px;
+  width: 315px;
   margin-left: 15px;
   display: flex;
   gap: 18px;
@@ -653,5 +718,18 @@ button a {
 
 pre {
   margin-top: 0;
+}
+
+.magic-preview {
+  min-height: calc(100vh - 100px);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  svg {
+    position: absolute;
+    z-index: -1;
+  }
 }
 </style>
