@@ -4,7 +4,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "AI ITERATOR",
+    title: "Aiterator - Layout to Prompt",
     htmlAttrs: {
       lang: "en",
     },
