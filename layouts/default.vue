@@ -92,6 +92,7 @@
               class="refresh-btn"
               :class="{ active: $state.mainTool === 'preview' }"
               @click="$state.mainTool = 'preview'"
+              style="border-top-left-radius: 0; border-bottom-left-radius: 0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -203,7 +204,7 @@
           <path
             fill="#F2F4F8"
             d="M66.1,-38.2C78.2,-17.3,75.3,12.3,61.8,32.7C48.3,53,24.2,64.3,-1.8,65.3C-27.7,66.3,-55.5,57.2,-66.6,38.2C-77.7,19.2,-72.2,-9.7,-58.3,-31.6C-44.5,-53.6,-22.2,-68.7,2.4,-70.1C27,-71.5,54.1,-59.2,66.1,-38.2Z"
-            transform="translate(100 100)"
+            transform="translate(150 100)"
           />
         </svg>
       </template>
