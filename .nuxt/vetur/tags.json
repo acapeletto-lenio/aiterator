@@ -26,6 +26,9 @@
   "IconsQuestion": {
     "description": "Auto imported from components/icons/question.vue"
   },
+  "IconsRefresh": {
+    "description": "Auto imported from components/icons/refresh.vue"
+  },
   "IconsTrash": {
     "description": "Auto imported from components/icons/trash.vue"
   }

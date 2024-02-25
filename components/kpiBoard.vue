@@ -1,10 +1,6 @@
 <template>
   <div style="flex: 1; position: relative">
-    <div
-      class="container-grid-container"
-      :style="{ 'max-width': `100%` }"
-      ref="refocus"
-    >
+    <div class="container-grid-container" :style="{ 'max-width': `100%` }">
       <div
         class="container-grid"
         :key="updated"
@@ -28,7 +24,7 @@
           :data-col-end="getColStart(cells) + 1"
           :key="`cells-${cells}`"
           :class="{
-            active: edit,
+            active: $state.mainTool === 'canvas',
             lastcol: getColStart(cells) === gridData.columnAmount,
             lastrow:
               Math.ceil(cells / gridData.columnAmount) === gridData.rowAmount,
@@ -37,7 +33,44 @@
         ></i>
 
         <!-- Temporary selection -->
-        <div ref="selecter" class="selecter-cell"></div>
+        <div
+          ref="selecter"
+          class="selecter-cell"
+          :class="{ active: tempActive }"
+          @click.self="$refs.tempInput.focus()"
+        >
+          <div>
+            <input
+              placeholder="Enter name..."
+              v-model="tempLabel"
+              v-if="tempActive"
+              @keyup.enter="handleSave()"
+              ref="tempInput"
+            />
+          </div>
+          <div class="temp-toolbar" v-if="tempActive">
+            <button class="delete" @click="handleTempDelete()">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24"
+                viewBox="0 -960 960 960"
+                width="24"
+                style="top: 2px; position: relative"
+              >
+                <path
+                  d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+                />
+              </svg>
+            </button>
+            <button
+              class="delete generate"
+              @click="handleSave()"
+              :disabled="tempLabel === ''"
+            >
+              Save
+            </button>
+          </div>
+        </div>
 
         <!-- Saved areas -->
         <section
@@ -69,7 +102,6 @@
                 />
               </svg>
             </button>
-
             <button
               :class="{
                 delete: true,
@@ -80,14 +112,13 @@
               "
               v-for="(svg, tool) in areaTools"
               v-html="svg"
-              v-if="item.generatedHtml != ''"
             ></button>
-
             <button
               class="delete generate"
               @click="getReply(parent)"
-              :disabled="$state.apiKey === ''"
-              v-if="item.name != ''"
+              :disabled="
+                $state.savedBlocks[data].savedCells[parent].label === ''
+              "
             >
               Generate
             </button>
@@ -97,36 +128,49 @@
           <div class="internal-loading" v-if="internalLoading === parent"></div>
 
           <!-- Preview -->
-          <div
-            class="generatedContent"
-            style="display: contents"
-            v-html="item.generatedHtml"
-            v-if="internalLoading != parent && item.selectedTool === 'preview'"
-          ></div>
-
-          <!-- Code -->
-          <!-- TODO -->
-          <div
-            class="seleccionador coder"
-            v-if="internalLoading != parent && item.selectedTool === 'code'"
-          >
-            <pre>{{ item.generatedHtml }}</pre>
+          <div style="overflow: hidden">
+            <div
+              class="generatedContent"
+              style="display: contents"
+              v-html="item.generatedHtml"
+              v-if="
+                internalLoading != parent &&
+                ($state.mainTool === 'preview' ||
+                  item.selectedTool === 'preview')
+              "
+            ></div>
           </div>
+
           <!-- Prompt -->
           <div
             class="seleccionador"
-            v-if="internalLoading != parent && item.selectedTool === 'prompt'"
+            @click.self="$refs[`input${parent}`][0].focus()"
+            v-if="internalLoading != parent && $state.mainTool === 'canvas'"
           >
-            <div>
-              <textarea
-                placeholder="Area Name"
-                v-model="$state.savedBlocks[data].savedCells[parent].promptText"
-                @keyup.enter="
-                  $state.savedBlocks[data].savedCells[parent].selectedTool =
-                    'prompt'
-                "
-              />
-            </div>
+            <div
+              class="magic-editable first"
+              contenteditable="true"
+              v-contenteditable="
+                $state.savedBlocks[data].savedCells[parent].label
+              "
+              @input="
+                $state.savedBlocks[data].savedCells[parent].label =
+                  $event.target.innerText
+              "
+            ></div>
+            <div
+              class="magic-editable"
+              contenteditable="true"
+              v-contenteditable="
+                $state.savedBlocks[data].savedCells[parent].promptText
+              "
+              @input="
+                $state.savedBlocks[data].savedCells[parent].promptText =
+                  $event.target.innerText
+              "
+              :ref="`input${parent}`"
+              tabindex="0"
+            ></div>
           </div>
         </section>
       </div>
@@ -140,7 +184,7 @@
           <span> {{ mark }} </span>
         </div>
       </div>
-      <div class="vertical-ruler" style="top: -1px; bottom: 1px">
+      <div class="vertical-ruler" style="top: 0; bottom: 1px">
         <div v-for="mark in gridData.rowAmount">
           <span>{{ mark }}</span>
         </div>
@@ -152,28 +196,40 @@
       </div>
       <div class="vertical-ruler left">
         <div>
-          <p
-            class="block-label"
-            @click="
-              $state.savedBlocks =
-                $state.savedBlocks.length > 1
-                  ? $state.savedBlocks.filter(
-                      (block) => block.label !== gridData.label
-                    )
-                  : $state.savedBlocks
-            "
-          >
-            {{ gridData.label }}
-          </p>
           <p>
+            <input
+              type="text"
+              class="block-label"
+              v-model="gridData.label"
+              :id="`gridData-label${data}`"
+              :placeholder="`Grid #${data + 1}`"
+            />
+          </p>
+
+          <p class="dimensions-container">
             <input type="number" v-model="gridData.columnAmount" />×<input
               type="number"
               v-model="gridData.rowAmount"
             />
+            <b
+              @click="
+                $state.savedBlocks =
+                  $state.savedBlocks.length > 1
+                    ? $state.savedBlocks.filter(
+                        (block) => block.label !== gridData.label
+                      )
+                    : $state.savedBlocks
+              "
+            >
+              <icons-trash />
+            </b>
           </p>
-          <textarea name="" id="" placeholder="Add prompt..."></textarea>
-          <!--           <p>{{ gridData.rowHeightAmount }}px</p>
- -->
+          <textarea
+            name=""
+            id=""
+            placeholder="Add prompt..."
+            v-model="gridData.blockPrompt"
+          ></textarea>
         </div>
       </div>
     </div>
@@ -187,7 +243,7 @@ export default {
     data: {
       type: Number,
       required: false,
-      default: 0, // Provide a default value if appropriate
+      default: 0,
     },
     gridData: {
       type: Object,
@@ -213,15 +269,16 @@ export default {
       startX: "",
       startY: "",
       boardID: "",
-
+      textContent: "Edit me!",
       updated: 0,
       promptText: "",
       promptResponse: "",
       initialHeight: "calc(100vh - 60px)",
+      tempLabel: "",
+      tempActive: false,
       areaTools: {
         prompt:
           "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 16V15H18V16H3ZM3 12V11H15V12H3ZM3 8V7H21V8H3Z' fill='black'/></svg>",
-        code: "<svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 -960 960 960' width='24'><path d='M320-240 80-480l240-240 57 57-184 184 183 183-56 56Zm320 0-57-57 184-184-183-183 56-56 240 240-240 240Z'/></svg>",
         preview:
           "<svg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 -960 960 960' width='24'><path d='M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59 5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z'/></svg>",
       },
@@ -234,7 +291,62 @@ export default {
     this.loading = false;
   },
   updated() {},
+  directives: {
+    contenteditable: {
+      bind(el, binding, vnode) {
+        function updateContent(event) {
+          vnode.context.$emit("input", event.target.innerText);
+        }
+        el.addEventListener("input", updateContent);
+
+        const value = binding.value;
+        el.innerText = value;
+      },
+      componentUpdated(el, binding) {
+        const value = binding.value;
+        if (value !== el.innerText) {
+          el.innerText = value;
+        }
+      },
+    },
+  },
   methods: {
+    handleTempDelete() {
+      this.tempActive = false;
+      this.tempLabel = "";
+      this.$refs.selecter.style.gridRowStart = "";
+      this.$refs.selecter.style.gridRowEnd = "";
+      this.$refs.selecter.style.gridColumnStart = "";
+      this.$refs.selecter.style.gridColumnEnd = "";
+      this.$refs.selecter.style.display = "none";
+    },
+    handleSave(parent) {
+      const cellId =
+        this.$refs.selecter.style.gridRowStart +
+        this.$refs.selecter.style.gridRowEnd +
+        this.$refs.selecter.style.gridColumnStart +
+        this.$refs.selecter.style.gridColumnEnd;
+      var newCell = {
+        area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
+        hasChart: false,
+        generatedHtml: "",
+        promptText: "",
+        selectedTool: "prompt",
+        label: this.tempLabel,
+      };
+      this.$set(this.$state.savedBlocks[this.data].savedCells, cellId, newCell);
+      this.tempActive = false;
+      this.tempLabel = "";
+      this.$refs.selecter.style.gridRowStart = "";
+      this.$refs.selecter.style.gridRowEnd = "";
+      this.$refs.selecter.style.gridColumnStart = "";
+      this.$refs.selecter.style.gridColumnEnd = "";
+      this.$refs.selecter.style.display = "none";
+
+      this.$nextTick(() => {
+        this.$refs[`input${cellId}`][0].focus();
+      });
+    },
     handleRemove() {},
     async getReply(parent) {
       this.internalLoading = parent;
@@ -252,17 +364,16 @@ export default {
               {
                 role: "system",
                 content: `For the user's description provided below, generate the HTML and CSS CODE necessary to create the described UI component.
-
-IMPORTANT:
-- Begin with the HTML code, then follow with the CSS code within <style></style> tags.
-- This code is intended for use in a V-HTML Vue element, so it should be valid for that context.
-- Exclude any JavaScript or comments from your response.
-- Include unique IDs for each element.
-- AVOID ELEMENT SELECTORS
-- The main container must be width: 100% and margin: 0 to fit its parent container fully.
-- THE HEIGHT SHOULD COVER THE PARENT COMPLETELY
-- You can use UNSPLASH when the word "images" is in the prompt
-`,
+                IMPORTANT:
+                - Begin with the HTML code, then follow with the CSS code within <style></style> tags.
+                - This code is intended for use in a V-HTML Vue element, so it should be valid for that context.
+                - Exclude any JavaScript or comments from your response.
+                - Include unique IDs for each element.
+                - AVOID ELEMENT SELECTORS
+                - The main container must be width: 100% and margin: 0 to fit its parent container fully.
+                - THE HEIGHT SHOULD COVER THE PARENT COMPLETELY
+                - You can use UNSPLASH when the word "images" is in the prompt
+                `,
               },
               {
                 role: "user",
@@ -284,8 +395,7 @@ IMPORTANT:
         .replaceAll("```", "");
       this.promptText = "";
 
-      this.$state.savedBlocks[this.data].savedCells[parent].selectedTool =
-        "preview";
+      this.$state.mainTool = "preview";
       this.$state.savedBlocks[this.data].savedCells[parent].generatedHtml =
         this.promptResponse;
       this.internalLoading = false;
@@ -326,6 +436,9 @@ IMPORTANT:
     },
     startDrag(e) {
       this.dragging = true;
+      this.tempActive = false;
+      this.tempLabel = "";
+
       this.startX = e.clientX;
       this.startY = e.clientY;
 
@@ -340,40 +453,19 @@ IMPORTANT:
       this.startX = "";
       this.startY = "";
 
-      const cellId =
-        this.$refs.selecter.style.gridRowStart +
-        this.$refs.selecter.style.gridRowEnd +
-        this.$refs.selecter.style.gridColumnStart +
-        this.$refs.selecter.style.gridColumnEnd;
-
-      // Calculate the size of the selected area
       const rowStart = parseInt(this.$refs.selecter.style.gridRowStart);
       const rowEnd = parseInt(this.$refs.selecter.style.gridRowEnd);
       const colStart = parseInt(this.$refs.selecter.style.gridColumnStart);
       const colEnd = parseInt(this.$refs.selecter.style.gridColumnEnd);
 
-      // Check if the selected area is 1x1
       if (rowEnd - rowStart === 1 && colEnd - colStart === 1) {
       } else {
-        var newCell = {
-          area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
-          hasChart: false,
-          generatedHtml: "",
-          promptText: "",
-          selectedTool: "prompt",
-          name: "",
-        };
-        this.$refs.selecter.style.gridRowStart = "";
-        this.$refs.selecter.style.gridRowEnd = "";
-        this.$refs.selecter.style.gridColumnStart = "";
-        this.$refs.selecter.style.gridColumnEnd = "";
-        this.$refs.selecter.style.display = "none";
+        this.tempActive = true;
+        this.tempLabel = "";
 
-        this.$set(
-          this.$state.savedBlocks[this.data].savedCells,
-          cellId,
-          newCell
-        );
+        this.$nextTick(() => {
+          this.$refs.tempInput.focus();
+        });
       }
     },
     hoverling(e) {
@@ -458,11 +550,97 @@ IMPORTANT:
   }
   .selecter-cell {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    left: 0;
+    bottom: 1px;
+    top: 0;
+    right: 1px;
     background: rgba(255, 255, 0, 0.3);
     display: none;
     pointer-events: none;
+    z-index: 999;
+    .temp-toolbar {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: none;
+      button.delete {
+        border: 0;
+        border-radius: 0;
+
+        cursor: pointer;
+        align-items: center;
+        z-index: 9;
+        padding: 0 8px 0;
+        color: #111;
+        background: rgba(253, 216, 53, 0.95);
+
+        border: 0;
+
+        //border-left: 1px solid #e1b802;
+        &.disabled {
+          pointer-events: none;
+          svg {
+            opacity: 0.5;
+          }
+        }
+        svg {
+          width: 14px;
+          height: auto;
+          stroke: #111;
+        }
+        &.active,
+        &:hover {
+          background: #e1b802;
+        }
+        &.generate {
+          border: 0;
+
+          width: max-content;
+          cursor: pointer;
+          &:last-child {
+            border-left: 0;
+          }
+          svg {
+            width: 18px;
+            height: auto;
+            stroke: transparent;
+          }
+        }
+      }
+    }
+    &.active {
+      background: #fff;
+      pointer-events: all;
+      outline: 1px dashed #e9e9e9;
+
+      &:hover {
+        outline: 3px solid rgba(253, 216, 53, 0.95);
+        outline-offset: -3px;
+        border-radius: 0;
+        z-index: 9999;
+        .temp-toolbar {
+          display: flex;
+          align-items: center;
+          flex-direction: row-reverse;
+        }
+      }
+      button {
+        background: rgba(253, 216, 53, 0.95);
+        border-radius: 0;
+        color: #666;
+        padding: 5px 15px;
+      }
+      input {
+        border: 0;
+        color: #888;
+        width: 100%;
+        font-family: monospace;
+        padding: 10px;
+        &:focus {
+          outline: 0;
+        }
+      }
+    }
   }
   > section {
     background: #fff;
@@ -540,7 +718,11 @@ IMPORTANT:
   bottom: 0;
   top: 0;
   right: 0;
-  display: flex;
+  padding: 10px;
+  //display: flex;
+  > * {
+    //float: left;
+  }
   &.disabled {
     pointer-events: none;
     opacity: 0.5;
@@ -598,23 +780,7 @@ IMPORTANT:
     opacity: 0.65;
   }
 }
-.seleccionador > div input {
-  pointer-events: initial;
-  text-align: center;
-  border: 0;
-  font-size: 22px;
-  color: #888;
-  background: transparent;
-  width: 100%;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  &:focus {
-    outline: 0;
-  }
-}
+
 .seleccionador > div button {
   position: absolute;
 
@@ -652,6 +818,9 @@ button input[type="text"] {
   }
 }
 
+.generatedContent {
+  overflow: hidden;
+}
 .generatedContent > * {
   height: 100% !important;
 }
@@ -726,6 +895,7 @@ button input[type="text"] {
     width: 165px;
     padding: 8px;
     padding-right: 10px;
+    padding-top: 10px;
     padding-left: 8px;
     pointer-events: all;
     &:after {
@@ -802,6 +972,7 @@ button input[type="text"] {
   }
 }
 
+.temp-toolbar,
 .internal-tools-internal {
   position: absolute;
   top: 0;
@@ -810,17 +981,6 @@ button input[type="text"] {
   flex-direction: row-reverse;
   > * {
     padding: 5px 8px !important;
-  }
-}
-
-.vertical-ruler.left > div p.block-label {
-  cursor: pointer;
-  &:hover {
-    color: crimson;
-    &:after {
-      content: "×";
-      margin-left: 5px;
-    }
   }
 }
 
@@ -843,5 +1003,58 @@ button input[type="text"] {
 
 .vertical-ruler.right > div:after {
   background: linear-gradient(to left, #aaa, transparent);
+}
+
+.block-label {
+  border: 0;
+  background: transparent;
+  color: #ddd;
+  padding: 0;
+  font-family: monospace;
+  width: 100%;
+  &:focus {
+    outline: 0;
+  }
+}
+
+input.block-label::placeholder {
+  color: #ccc;
+}
+.container-grid .selecter-cell.active input::placeholder {
+  color: #aaa;
+}
+.dimensions-container {
+  svg {
+    display: none;
+    cursor: pointer;
+  }
+  &:hover svg {
+    fill: #ccc;
+    width: 18px;
+    display: block;
+    &:hover {
+      fill: #c2185b;
+    }
+  }
+}
+
+.magic-editable {
+  font-family: monospace;
+  max-width: max-content;
+  word-break: break-all;
+  &:focus {
+    outline: 0;
+  }
+  &:empty:after {
+    content: "Enter Prompt...";
+    color: #888;
+  }
+
+  &.first + .magic-editable {
+    padding-top: 3px;
+  }
+  &.first {
+    font-weight: bold;
+  }
 }
 </style>

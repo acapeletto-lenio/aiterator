@@ -33,7 +33,7 @@
             ]
           "
         >
-          <icons-trash />
+          <icons-refresh />
         </button>
         <div style="display: flex">
           <button
@@ -59,7 +59,7 @@
         </div>
       </div>
       <div class="right-toolbar">
-        <button class="refresh-btn" style="border: 0; padding: 0">
+        <!--         <button class="refresh-btn" style="border: 0; padding: 0">
           <icons-question />
         </button>
         <button class="refresh-btn">
@@ -68,6 +68,11 @@
             placeholder="Your OpenAI API Key..."
             v-model="$state.apiKey"
           />
+        </button> -->
+        <button class="hire-btn">
+          <a href="https://leniolabs.com" target="_blank">
+            Hire our dev team!</a
+          >
         </button>
         <button class="refresh-btn generate-btn">Generate Design 🤖</button>
         <button
@@ -102,10 +107,10 @@
         </div>
       </div>
 
-      <template v-if="$state.mainTool === 'canvas'">
+      <template>
         <nuxt />
         <div class="mega-sidebar" v-if="isOpen">
-          <div class="recode-block-container">
+          <div class="recode-block-container" style="flex: 0">
             <button
               class="export-btn"
               style="
@@ -115,26 +120,23 @@
               "
             >
               HTML & CSS
-              <icons-copy style="position: absolute; right: 10px" />
+              <icons-copy style="position: absolute; right: 15px" />
             </button>
             <div class="recode-block">
               <pre><code>&lt;<span class="tag">main</span>&gt;<template v-for="grid in $state.savedBlocks"> 
-  &lt;<span class="tag">section</span> <span class="attr">style</span>="<span class="attr">display</span>: <span class="reval">grid</span>;
+  &lt;<span class="tag">section</span><template v-if="grid.label != ''"> <span class="attr">class</span>="<span class="reval">{{grid.label}}</span>"</template> <span class="attr">style</span>="<span class="attr">display</span>: <span class="reval">grid</span>;
     <span class="attr">grid-template-columns</span>: <span class="reval">repeat({{grid.columnAmount}}, 1fr)</span>;
     <span class="attr">grid-template-rows</span>: <span class="reval">repeat({{grid.rowAmount}}, {{grid.rowHeightAmount}}px)</span>;
-  "&gt;<template v-for="area in grid.savedCells">
-    &lt;<span class="tag">div</span> <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;&lt;/<span class="tag">div</span>&gt;</template>
+  "&gt;<template v-if="grid.blockPrompt != ''">
+    <span class="attr-comment">&lt;!-- {{grid.blockPrompt}} --&gt;</span></template><template v-for="area in grid.savedCells">
+    &lt;<span class="tag">div</span> <span class="attr">class</span>="<span class="reval">{{area.label}}</span>" <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;<template v-if="area.promptText != ''">
+    <span class="attr-comment">&lt;!-- {{area.promptText}} --&gt;</span></template>
+    &lt;/<span class="tag">div</span>&gt;</template>
   &lt;/<span class="tag">section</span>&gt;</template>
-&lt;/<span class="tag">main</span>&gt;
-
-
-</code></pre>
+&lt;/<span class="tag">main</span>&gt;</code></pre>
             </div>
           </div>
-          <div
-            style="flex: 1; max-height: 400px"
-            class="recode-block-container"
-          >
+          <div style="flex: 1" class="recode-block-container">
             <button
               style="
                 border-bottom-right-radius: 0;
@@ -142,31 +144,33 @@
               "
             >
               AI Prompt
-              <icons-copy style="position: absolute; right: 10px" />
+              <icons-copy style="position: absolute; right: 15px" />
             </button>
             <div class="recode-block" style="max-height: initial">
-              "Design a user interface for a web application that leverages a
-              grid layout with two main sections.
+              "Create a flexible web interface that efficiently utilizes a grid
+              layout defined within a &lt;main&gt; element, featuring a
+              &lt;section&gt; that employs CSS grid styling. This grid is
+              structured to have 12 columns of equal width and 16 rows, each 50
+              pixels high. The design should be adaptable, capable of supporting
+              a diverse range of content types including text, images, and
+              interactive elements.
               <br /><br />
-              The top section, covering the first two rows across all twelve
-              columns, should feature a dynamic banner that showcases the latest
-              or most important news, including eye-catching visuals and
-              headlines. The second section, spanning from the third to the
-              tenth row across all twelve columns, should be dedicated to a mix
-              of articles, interviews, and photo essays, organized in a visually
-              appealing manner that encourages exploration and reading.
+              The objective is to craft a clean, user-friendly layout that can
+              serve multiple purposes. The interface should prioritize ease of
+              navigation and clarity, ensuring that content is accessible and
+              engaging for users across various devices. Emphasize the use of
+              space, color, and typography to create a visually appealing
+              environment that enhances the content displayed within each grid
+              cell.
               <br /><br />
-              Each article tile should include a headline, a brief summary, and
-              a thumbnail image. The layout should prioritize readability,
-              intuitive navigation, and should adapt seamlessly to different
-              screen sizes, from desktops to tablets and mobile phones. Include
-              interactive elements such as hover effects for desktop users and
-              touch feedback for mobile users, to enhance user engagement and
-              provide a modern, responsive user experience."
+              Ensure the design is responsive, adapting smoothly to different
+              screen sizes, and incorporates interactive features that enhance
+              user engagement. The layout should be scalable, allowing for easy
+              updates and modifications as the content evolves."
             </div>
           </div>
 
-          <div style="margin-top: auto">
+          <!--           <div style="margin-top: auto">
             <i>Built with <span style="color: #c2185b">&hearts;</span> by</i>
             <icons-leniologo />
             <button class="hire-btn">
@@ -174,42 +178,8 @@
                 >Hire our dev team!</a
               >
             </button>
-          </div>
+          </div> -->
         </div>
-      </template>
-      <template v-if="$state.mainTool === 'preview'">
-        <div class="magic-preview">
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <path
-              fill="#F2F4F8"
-              d="M44.3,-55.3C60,-49.6,77,-40.1,83.7,-25.7C90.4,-11.3,86.9,7.9,79.3,24.1C71.7,40.3,60.1,53.6,46.3,59.5C32.4,65.5,16.2,64.1,-0.1,64.3C-16.4,64.4,-32.9,66.2,-48.6,60.8C-64.3,55.5,-79.2,43,-83.8,27.5C-88.4,12,-82.7,-6.5,-76.8,-25C-70.8,-43.5,-64.7,-62.1,-51.9,-68.7C-39,-75.2,-19.5,-69.9,-2.6,-66.3C14.3,-62.8,28.6,-60.9,44.3,-55.3Z"
-              transform="translate(100 100)"
-            />
-          </svg>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              gap: 10px;
-              max-width: 200px;
-              margin: 0 auto;
-              justify-content: center;
-            "
-          >
-            <div style="font-size: 100px; text-align: center">🪄</div>
-            <div style="color: #666; text-align: center">
-              Define your grid and areas and click [Generate Design] to populate
-              this section.
-            </div>
-          </div>
-        </div>
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <path
-            fill="#F2F4F8"
-            d="M66.1,-38.2C78.2,-17.3,75.3,12.3,61.8,32.7C48.3,53,24.2,64.3,-1.8,65.3C-27.7,66.3,-55.5,57.2,-66.6,38.2C-77.7,19.2,-72.2,-9.7,-58.3,-31.6C-44.5,-53.6,-22.2,-68.7,2.4,-70.1C27,-71.5,54.1,-59.2,66.1,-38.2Z"
-            transform="translate(150 100)"
-          />
-        </svg>
       </template>
     </div>
   </div>
@@ -228,11 +198,13 @@ export default {
 
   methods: {
     handleAdd() {
-      this.$state.savedBlocks.unshift({
+      this.$state.savedBlocks.push({
         label: `Grid #${this.$state.savedBlocks.length + 1}`,
         columnAmount: 6,
         rowHeightAmount: 50,
         rowAmount: 4,
+        savedCells: {},
+        blockPrompt: "",
       });
     },
   },
@@ -270,15 +242,16 @@ html {
     opacity: 1;
   }
 }
+button,
+input {
+  font-size: 13px;
+}
 
 #__layout,
 #__layout > div,
 #__nuxt,
 html,
 body {
-  //background: #1e1e1e;
-
-  //min-height: 100vh;
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -433,6 +406,7 @@ hr {
     }
     &.hire-btn {
       background: #c2185b;
+      min-width: 200px;
       &:hover {
         background: #a3144d;
       }
@@ -450,7 +424,7 @@ hr {
         background: linear-gradient(-45deg, #01579b, #388e3c);
         border: 0;
         transition: all 0.2s linear;
-        min-width: 280px;
+        min-width: 279px;
         &:hover {
           background: linear-gradient(-45deg, #013b67, #317134);
           transition: all 0.2s linear;
@@ -580,6 +554,7 @@ button a {
   gap: 18px;
   flex-direction: column;
   justify-content: flex-start;
+  height: calc(100vh - 100px);
   > div {
     display: flex;
     flex-direction: column;
@@ -603,16 +578,17 @@ button a {
   border-top-left-radius: 0;
   padding: 10px;
   font-family: monospace;
-  max-height: 150px;
+  max-height: 200px;
   overflow: auto;
   font-size: 12px;
+  height: 100%;
   code {
-    color: #ddd;
+    color: #bbb;
   }
 }
 
 pre {
-  margin-top: 0;
+  margin: 0;
 }
 
 .magic-preview {
@@ -654,6 +630,10 @@ button.chevrutton {
   color: #9cdcfe;
 }
 
+.attr-comment {
+  color: #74975d;
+  white-space: normal;
+}
 .reval {
   color: #ce9178;
 }

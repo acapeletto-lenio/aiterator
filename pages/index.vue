@@ -2,13 +2,16 @@
   <div style="flex: 1">
     <!--     <kpiSidebar />
  -->
-    <div class="blocks-container">
+    <div
+      class="blocks-container"
+      :class="{ preview: $state.mainTool === 'preview' }"
+    >
       <kpiBoard
         edit
         :data="i"
         :gridData="block"
         v-for="(block, i) in $state.savedBlocks"
-        :key="`${block.label}-${i}`"
+        :key="`block-${i}`"
       />
     </div>
   </div>
@@ -41,7 +44,12 @@ export default {
     0 0/16px 16px #fff;
   //max-width: 1440px;
   margin: 8px auto;
-
+  &.preview {
+    background: #fff;
+    .container-grid > i {
+      border-color: transparent;
+    }
+  }
   .container-grid-container {
     border-top: 1px solid #ddd;
   }

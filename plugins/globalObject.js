@@ -3,7 +3,7 @@ import Vue from "vue";
 var state = {
   updated: 0,
   isOpen: false,
-  apiKey: "",
+  apiKey: "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",
   mainTool: "canvas",
   savedBlocks: [
     /*     {
@@ -19,11 +19,20 @@ var state = {
       rowAmount: 6,
     }, */
     {
-      label: "Grid #1",
+      label: "",
       columnAmount: 12,
       rowHeightAmount: 50,
-      rowAmount: 16,
+      rowAmount: 12,
       savedCells: {},
+      blockPrompt: "",
+    },
+    {
+      label: "",
+      columnAmount: 6,
+      rowHeightAmount: 50,
+      rowAmount: 4,
+      savedCells: {},
+      blockPrompt: "",
     },
   ],
 };

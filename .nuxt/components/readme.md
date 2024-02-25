@@ -15,4 +15,5 @@ You can directly use them in pages and other components without the need to impo
 - `<IconsLeniologo>` | `<icons-leniologo>` (components/icons/leniologo.vue)
 - `<IconsPlus>` | `<icons-plus>` (components/icons/plus.vue)
 - `<IconsQuestion>` | `<icons-question>` (components/icons/question.vue)
+- `<IconsRefresh>` | `<icons-refresh>` (components/icons/refresh.vue)
 - `<IconsTrash>` | `<icons-trash>` (components/icons/trash.vue)
