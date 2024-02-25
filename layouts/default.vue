@@ -7,130 +7,80 @@
           <h2>Layout to Prompt</h2>
         </div>
       </div>
-      <!--       <div class="welcome-banner">
-        Welcome to AIterator! This app lets you effortlessly create and
-        customize blocks within a grid. Click and drag to define areas, adjust
-        columns, rows, and more to perfect your layout. Click Generate and watch
-        as your ideas take shape on the grid!
-      </div>
- -->
     </header>
-
-    <div class="content-container">
-      <div class="toolbar">
-        <div class="left-toolbar">
-          <button class="refresh-btn" @click="handleAdd()">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 -960 960 960"
-              width="24"
-            >
-              <path
-                d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"
-              />
-            </svg>
-            Add Grid
+    <div class="toolbar">
+      <div class="left-toolbar">
+        <button class="refresh-btn" @click="handleAdd()">
+          <icons-plus />
+          Add Grid
+        </button>
+        <button
+          class="refresh-btn"
+          @click="
+            $state.savedBlocks = [
+              {
+                label: 'Grid #1',
+                columnAmount: 12,
+                rowHeightAmount: 50,
+                rowAmount: 12,
+              },
+              {
+                label: 'Grid #2',
+                columnAmount: 6,
+                rowHeightAmount: 50,
+                rowAmount: 4,
+              },
+            ]
+          "
+        >
+          <icons-trash />
+        </button>
+        <div style="display: flex">
+          <button
+            class="refresh-btn"
+            :class="{ active: $state.mainTool === 'canvas' }"
+            @click="$state.mainTool = 'canvas'"
+            style="
+              border-right: 0;
+              border-top-right-radius: 0;
+              border-bottom-right-radius: 0;
+            "
+          >
+            <icons-edit />
           </button>
           <button
             class="refresh-btn"
-            @click="
-              $state.savedBlocks = [
-                {
-                  label: 'Grid #1',
-                  columnAmount: 12,
-                  rowHeightAmount: 50,
-                  rowAmount: 12,
-                },
-                {
-                  label: 'Grid #2',
-                  columnAmount: 6,
-                  rowHeightAmount: 50,
-                  rowAmount: 4,
-                },
-              ]
-            "
+            :class="{ active: $state.mainTool === 'preview' }"
+            @click="$state.mainTool = 'preview'"
+            style="border-top-left-radius: 0; border-bottom-left-radius: 0"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 -960 960 960"
-              width="24"
-            >
-              <path
-                d="M160-160v-80h110l-16-14q-52-46-73-105t-21-119q0-111 66.5-197.5T400-790v84q-72 26-116 88.5T240-478q0 45 17 87.5t53 78.5l10 10v-98h80v240H160Zm400-10v-84q72-26 116-88.5T720-482q0-45-17-87.5T650-648l-10-10v98h-80v-240h240v80H690l16 14q49 49 71.5 106.5T800-482q0 111-66.5 197.5T560-170Z"
-              />
-            </svg>
-            Restart
-          </button>
-          <!--           <button class="refresh-btn">
-            Max Width <input type="number" placeholder="100%" />
-          </button> -->
-          <div style="display: flex">
-            <button
-              class="refresh-btn"
-              :class="{ active: $state.mainTool === 'canvas' }"
-              @click="$state.mainTool = 'canvas'"
-              style="
-                border-right: 0;
-                border-top-right-radius: 0;
-                border-bottom-right-radius: 0;
-              "
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 -960 960 960"
-                width="24"
-              >
-                <path
-                  d="M320-160v-160H160v-80h160v-160H160v-80h160v-160h80v160h160v-160h80v160h160v80H640v160h160v80H640v160h-80v-160H400v160h-80Zm80-240h160v-160H400v160Z"
-                />
-              </svg>
-            </button>
-            <button
-              class="refresh-btn"
-              :class="{ active: $state.mainTool === 'preview' }"
-              @click="$state.mainTool = 'preview'"
-              style="border-top-left-radius: 0; border-bottom-left-radius: 0"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 -960 960 960"
-                width="24"
-              >
-                <path
-                  d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div class="right-toolbar">
-          <button class="refresh-btn" style="border: 0; padding: 0">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 -960 960 960"
-              width="24"
-              style="width: 20px"
-            >
-              <path
-                fill="#aaa"
-                d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"
-              />
-            </svg>
-          </button>
-          <button class="refresh-btn">
-            <input
-              type="text"
-              placeholder="Your OpenAI API Key..."
-              v-model="$state.apiKey"
-            />
+            <icons-eye />
           </button>
         </div>
       </div>
+      <div class="right-toolbar">
+        <button class="refresh-btn" style="border: 0; padding: 0">
+          <icons-question />
+        </button>
+        <button class="refresh-btn">
+          <input
+            type="text"
+            placeholder="Your OpenAI API Key..."
+            v-model="$state.apiKey"
+          />
+        </button>
+        <button class="refresh-btn generate-btn">Generate Design 🤖</button>
+        <button
+          @click="isOpen = !isOpen"
+          class="refresh-btn"
+          :class="{ active: isOpen }"
+        >
+          <icons-chevron-down v-if="!isOpen" />
+          <icons-chevron-up v-if="isOpen" />
+        </button>
+      </div>
+    </div>
+    <div class="content-container">
       <div
         class="fake-modal"
         style="display: none"
@@ -151,28 +101,81 @@
           </div>
         </div>
       </div>
-      <div
-        class="fake-modal"
-        style="display: none"
-        v-if="$state.mainTool === 'prompt'"
-      >
-        <div class="backdrop" @click="$state.mainTool = 'canvas'"></div>
-        <div class="fake-modal-content">
-          <div class="fake-modal-close" @click="$state.mainTool = 'canvas'">
-            ×
-          </div>
 
-          <h2>View Prompt</h2>
-          <div>
-            <div class="prompt-block"></div>
-          </div>
-          <div class="fake-modal-actions">
-            <button @click="$state.mainTool = 'canvas'">Close</button>
-          </div>
-        </div>
-      </div>
       <template v-if="$state.mainTool === 'canvas'">
         <nuxt />
+        <div class="mega-sidebar" v-if="isOpen">
+          <div class="recode-block-container">
+            <button
+              class="export-btn"
+              style="
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+                position: relative;
+              "
+            >
+              HTML & CSS
+              <icons-copy style="position: absolute; right: 10px" />
+            </button>
+            <div class="recode-block">
+              <pre><code>&lt;<span class="tag">main</span>&gt;<template v-for="grid in $state.savedBlocks"> 
+  &lt;<span class="tag">section</span> <span class="attr">style</span>="<span class="attr">display</span>: <span class="reval">grid</span>;
+    <span class="attr">grid-template-columns</span>: <span class="reval">repeat({{grid.columnAmount}}, 1fr)</span>;
+    <span class="attr">grid-template-rows</span>: <span class="reval">repeat({{grid.rowAmount}}, {{grid.rowHeightAmount}}px)</span>;
+  "&gt;<template v-for="area in grid.savedCells">
+    &lt;<span class="tag">div</span> <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;&lt;/<span class="tag">div</span>&gt;</template>
+  &lt;/<span class="tag">section</span>&gt;</template>
+&lt;/<span class="tag">main</span>&gt;
+
+
+</code></pre>
+            </div>
+          </div>
+          <div
+            style="flex: 1; max-height: 400px"
+            class="recode-block-container"
+          >
+            <button
+              style="
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+              "
+            >
+              AI Prompt
+              <icons-copy style="position: absolute; right: 10px" />
+            </button>
+            <div class="recode-block" style="max-height: initial">
+              "Design a user interface for a web application that leverages a
+              grid layout with two main sections.
+              <br /><br />
+              The top section, covering the first two rows across all twelve
+              columns, should feature a dynamic banner that showcases the latest
+              or most important news, including eye-catching visuals and
+              headlines. The second section, spanning from the third to the
+              tenth row across all twelve columns, should be dedicated to a mix
+              of articles, interviews, and photo essays, organized in a visually
+              appealing manner that encourages exploration and reading.
+              <br /><br />
+              Each article tile should include a headline, a brief summary, and
+              a thumbnail image. The layout should prioritize readability,
+              intuitive navigation, and should adapt seamlessly to different
+              screen sizes, from desktops to tablets and mobile phones. Include
+              interactive elements such as hover effects for desktop users and
+              touch feedback for mobile users, to enhance user engagement and
+              provide a modern, responsive user experience."
+            </div>
+          </div>
+
+          <div style="margin-top: auto">
+            <i>Built with <span style="color: #c2185b">&hearts;</span> by</i>
+            <icons-leniologo />
+            <button class="hire-btn">
+              <a href="https://leniolabs.com" target="_blank"
+                >Hire our dev team!</a
+              >
+            </button>
+          </div>
+        </div>
       </template>
       <template v-if="$state.mainTool === 'preview'">
         <div class="magic-preview">
@@ -209,78 +212,6 @@
         </svg>
       </template>
     </div>
-    <div class="mega-sidebar">
-      <button class="refresh-btn generate-btn" :disabled="$state.apiKey === ''">
-        Generate Design 🤖
-      </button>
-      <div>
-        <button class="export-btn" @click="$state.mainTool = 'export'">
-          Copy Code
-        </button>
-        <div class="recode-block">
-          <pre v-pre><code>&lt;section style="
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(12, 50px);
-"&gt;
-
-  &lt;div style="grid-area: 1 / 1 / 3 / 13"&gt;&lt;/div&gt;
-  &lt;div style="grid-area: 3 / 1 / 11 / 13"&gt;&lt;/div&gt;
-
-&lt;/section&gt;
-</code></pre>
-        </div>
-      </div>
-      <div style="flex: 1">
-        <button @click="$state.mainTool = 'prompt'">Copy Prompt</button>
-        <div class="recode-block" style="max-height: 350px">
-          "Design a user interface for a web application that leverages a grid
-          layout with two main sections.
-          <br /><br />
-          The top section, covering the first two rows across all twelve
-          columns, should feature a dynamic banner that showcases the latest or
-          most important news, including eye-catching visuals and headlines. The
-          second section, spanning from the third to the tenth row across all
-          twelve columns, should be dedicated to a mix of articles, interviews,
-          and photo essays, organized in a visually appealing manner that
-          encourages exploration and reading.
-          <br /><br />
-          Each article tile should include a headline, a brief summary, and a
-          thumbnail image. The layout should prioritize readability, intuitive
-          navigation, and should adapt seamlessly to different screen sizes,
-          from desktops to tablets and mobile phones. Include interactive
-          elements such as hover effects for desktop users and touch feedback
-          for mobile users, to enhance user engagement and provide a modern,
-          responsive user experience."
-        </div>
-      </div>
-
-      <div style="margin-top: auto">
-        <i>Built with &hearts; by</i>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          version="1.1"
-          id="Layer_1"
-          x="0"
-          y="0"
-          viewBox="0 0 481.1 235.9"
-          xml:space="preserve"
-        >
-          <path
-            class="st0"
-            d="M290.6 200.5H34.2V35.1h256.4v41.2h-8.4V43.5H42.6v148.6h239.6v-34.8h8.4z"
-          />
-          <path
-            class="st0"
-            d="M96.7 133.7h20.6v6.9H88.2V96.5h8.5v37.2zm43.7 7.5c-2.5 0-4.8-.4-6.9-1.2s-3.8-2-5.3-3.4-2.6-3.1-3.4-5c-.8-1.9-1.2-4-1.2-6.2v-1.2c0-2.5.4-4.8 1.2-6.9.8-2.1 1.9-3.8 3.3-5.3s3.1-2.7 5-3.5c1.9-.8 4-1.2 6.3-1.2 2.4 0 4.5.4 6.3 1.2 1.8.8 3.4 1.9 4.7 3.3 1.3 1.4 2.3 3.1 2.9 5.1.7 2 1 4.2 1 6.6v3.6h-22.2c.2 1.1.5 2.1 1 3 .5.9 1.1 1.7 1.9 2.4.8.7 1.6 1.2 2.6 1.5 1 .4 2.1.5 3.2.5.8 0 1.6-.1 2.5-.2.8-.2 1.6-.4 2.3-.7.7-.3 1.4-.7 2.1-1.2.6-.5 1.2-1 1.7-1.6l4.2 4.5c-.5.7-1.2 1.5-2 2.2-.8.7-1.8 1.4-3 1.9-1.1.6-2.4 1-3.8 1.3s-2.8.5-4.4.5zm-1-27.2c-.9 0-1.8.2-2.6.5s-1.5.8-2.1 1.4c-.6.6-1.1 1.4-1.5 2.2-.4.9-.7 1.8-.9 2.9h13.8v-.7c0-.9-.2-1.7-.5-2.5s-.7-1.5-1.3-2c-.6-.6-1.3-1-2.1-1.4-.8-.2-1.7-.4-2.8-.4zm29.3-6.2.5 4.5c1.2-1.6 2.6-2.9 4.3-3.8 1.7-.9 3.5-1.3 5.6-1.3 1.7 0 3.2.2 4.5.7 1.4.5 2.6 1.3 3.6 2.3 1 1.1 1.8 2.4 2.3 4.1.6 1.7.8 3.7.8 6.1v20.2h-8.4v-20c0-1.3-.1-2.4-.4-3.2-.3-.8-.7-1.5-1.3-2s-1.2-.8-2-1c-.8-.2-1.6-.3-2.6-.3-1.4 0-2.7.3-3.7.9-1 .6-1.8 1.4-2.5 2.4v23.3H161v-32.8h7.7zm31.2 0h17.8v25.9h8.9v6.8h-26.7v-6.8h9.3v-19h-9.3v-6.9zm8.8-8.4c0-.6.1-1.2.3-1.8.2-.6.6-1 1-1.4.4-.4.9-.7 1.5-.9.6-.2 1.3-.3 2-.3 1.5 0 2.7.4 3.6 1.3.9.8 1.3 1.9 1.3 3.2 0 1.3-.4 2.4-1.3 3.2-.9.8-2.1 1.3-3.6 1.3-.7 0-1.4-.1-2-.3-.6-.2-1.1-.5-1.5-.9-.4-.4-.8-.9-1-1.4-.2-.7-.3-1.3-.3-2zm24.4 24.5c0-2.4.3-4.6 1-6.6s1.7-3.8 3-5.3 2.9-2.7 4.8-3.5 4.1-1.3 6.6-1.3 4.7.4 6.6 1.3 3.5 2 4.9 3.5c1.3 1.5 2.3 3.3 3 5.3.7 2 1 4.2 1 6.6v.6c0 2.4-.3 4.6-1 6.6s-1.7 3.8-3 5.3-2.9 2.7-4.8 3.5c-1.9.8-4.1 1.3-6.5 1.3-2.5 0-4.7-.4-6.6-1.3-1.9-.8-3.6-2-4.9-3.5-1.3-1.5-2.3-3.3-3-5.3-.7-2-1-4.2-1-6.6v-.6zm8.4.6c0 1.4.1 2.7.4 3.9.3 1.2.7 2.3 1.2 3.1.6.9 1.3 1.6 2.2 2.1.9.5 2 .8 3.3.8 1.2 0 2.3-.3 3.2-.8.9-.5 1.6-1.2 2.2-2.1.6-.9 1-1.9 1.2-3.1.3-1.2.4-2.5.4-3.9v-.6c0-1.3-.1-2.6-.4-3.8-.3-1.2-.7-2.2-1.2-3.1-.6-.9-1.3-1.6-2.2-2.1-.9-.5-2-.8-3.2-.8-1.3 0-2.3.3-3.2.8-.9.5-1.6 1.2-2.2 2.1-.6.9-1 2-1.2 3.1-.3 1.2-.4 2.5-.4 3.8v.6zm31.1-30.4h18.3v39.7h9.4v6.8h-27.7v-6.8h9.8V101h-9.8v-6.9zm55.3 46.5c-.2-.4-.4-.9-.5-1.4-.1-.5-.3-1.1-.4-1.7-.5.5-1 1-1.6 1.4-.6.4-1.3.8-2 1.2-.7.3-1.5.6-2.4.8-.9.2-1.8.3-2.9.3-1.7 0-3.2-.2-4.6-.7-1.4-.5-2.6-1.2-3.6-2-1-.9-1.8-1.9-2.4-3.1-.6-1.2-.8-2.5-.8-3.9 0-3.5 1.3-6.1 3.9-8 2.6-1.9 6.4-2.8 11.5-2.8h4.7v-1.9c0-1.6-.5-2.8-1.5-3.7-1-.9-2.5-1.4-4.5-1.4-1.7 0-3 .4-3.8 1.1-.8.7-1.2 1.7-1.2 3h-8.4c0-1.4.3-2.7.9-4 .6-1.3 1.5-2.4 2.7-3.3 1.2-.9 2.6-1.7 4.3-2.3 1.7-.6 3.7-.8 5.9-.8 2 0 3.8.2 5.5.7 1.7.5 3.2 1.2 4.4 2.1 1.3.9 2.2 2.1 2.9 3.6.7 1.4 1.1 3.1 1.1 5v14c0 1.8.1 3.2.3 4.4s.5 2.1 1 3v.5h-8.5zm-8-5.9c.8 0 1.6-.1 2.4-.3.7-.2 1.4-.5 2-.8.6-.3 1.1-.7 1.5-1.1.4-.4.8-.8 1-1.3v-5.6h-4.3c-1.3 0-2.4.1-3.4.4-.9.3-1.7.6-2.3 1.1-.6.5-1 1-1.3 1.6-.3.6-.4 1.3-.4 2.1 0 1.1.4 2.1 1.2 2.8.8.7 2 1.1 3.6 1.1zm53.7-10.2c0 2.4-.3 4.7-.8 6.7s-1.3 3.8-2.4 5.3c-1.1 1.5-2.4 2.6-4 3.4-1.6.8-3.5 1.2-5.6 1.2-1.9 0-3.6-.4-5-1.1-1.4-.7-2.6-1.7-3.6-3l-.4 3.5h-7.6V94.1h8.4v16.7c1-1.1 2.1-2 3.4-2.6 1.3-.6 2.9-.9 4.6-.9 2.1 0 4 .4 5.6 1.2 1.6.8 2.9 2 4 3.5s1.9 3.2 2.4 5.3c.5 2 .8 4.3.8 6.7v.5zm-8.5-.6c0-1.3-.1-2.6-.3-3.8-.2-1.2-.6-2.2-1-3.1-.5-.9-1.2-1.6-2-2.1s-1.9-.8-3.2-.8c-1.5 0-2.8.3-3.7 1-1 .6-1.7 1.5-2.2 2.7v13c.5 1.1 1.3 2 2.2 2.7 1 .6 2.2 1 3.8 1 1.3 0 2.3-.2 3.1-.7.8-.5 1.5-1.2 2-2.1.5-.9.8-1.9 1-3.1.2-1.2.3-2.5.3-3.9v-.8zm36.7 7.7c0-.5-.1-.9-.3-1.3-.2-.4-.6-.7-1.2-1.1-.6-.3-1.4-.6-2.4-.9-1-.3-2.2-.6-3.8-.8-1.9-.4-3.7-.9-5.3-1.4-1.6-.6-2.9-1.3-4.1-2.1-1.1-.8-2-1.8-2.6-2.8-.6-1.1-1-2.3-1-3.7 0-1.4.3-2.6 1-3.9.6-1.2 1.6-2.3 2.8-3.2 1.2-.9 2.7-1.7 4.4-2.2 1.7-.5 3.7-.8 5.9-.8 2.3 0 4.3.3 6.1.8 1.8.5 3.4 1.3 4.6 2.2 1.3.9 2.2 2.1 2.9 3.3.7 1.3 1 2.7 1 4.2h-8.4c0-1.3-.5-2.3-1.5-3.2-1-.9-2.6-1.3-4.7-1.3-2 0-3.4.4-4.4 1.1-1 .7-1.5 1.6-1.5 2.6 0 .5.1.9.3 1.3.2.4.6.8 1.1 1.1.5.3 1.2.6 2.1.9.9.3 2 .5 3.4.7 2 .3 3.8.7 5.5 1.2 1.7.5 3.2 1.2 4.4 2 1.2.8 2.2 1.8 2.9 2.9.7 1.1 1 2.5 1 4.1 0 1.5-.3 2.8-1 4-.7 1.2-1.7 2.3-3 3.2-1.3.9-2.8 1.6-4.6 2.1-1.8.5-3.8.7-6.1.7-2.5 0-4.6-.3-6.5-1s-3.5-1.5-4.7-2.5c-1.3-1-2.2-2.2-2.9-3.5-.7-1.3-1-2.6-1-4h8c.1.9.3 1.6.7 2.3.4.6 1 1.2 1.6 1.5.7.4 1.4.7 2.3.9s1.7.3 2.6.3c2.1 0 3.7-.3 4.8-1s1.6-1.7 1.6-2.7zm43.2 15.5h-27.6v-6.6H445v6.6z"
-          />
-          <circle cx="65.9" cy="66.8" r="9.5" fill="#30a9b2" />
-        </svg>
-        <button class="hire-btn">
-          <a href="https://leniolabs.com" target="_blank">Hire our dev team!</a>
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -289,7 +220,7 @@ export default {
   scrollToTop: false,
   data() {
     return {
-      isOpen: false,
+      isOpen: true,
       numberOfMarks: 400,
       markSpacing: 5,
     };
@@ -303,10 +234,6 @@ export default {
         rowHeightAmount: 50,
         rowAmount: 4,
       });
-    },
-    isLongMark(n) {
-      // Determines if the mark should be long based on its position
-      return n % 10 === 0; // Every 10th mark is a long mark
     },
   },
 };
@@ -344,9 +271,6 @@ html {
   }
 }
 
-.relogo {
-  align-items: center;
-}
 #__layout,
 #__layout > div,
 #__nuxt,
@@ -362,29 +286,10 @@ body {
   padding-top: 20px;
   padding-left: 15px;
   padding-right: 15px;
-  /*   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'%3E%3Cpath d='M1 2V0h1v1H0v1z' fill-opacity='.025'/%3E%3C/svg%3E")
-    0 0/16px 16px #fff; */
   min-height: 100vh;
-  background: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.05) 4px,
-    rgba(0, 0, 0, 0.05) 6px
-  );
   background: linear-gradient(100deg, #000000, #32174d);
-  //background: #000;
 }
 
-.welcome-banner {
-  color: #ccc;
-  display: flex;
-  align-items: center;
-  line-height: 1.5;
-  font-family: monospace;
-  max-width: 130ch;
-}
 h1 {
   font-size: 20px;
 }
@@ -400,6 +305,8 @@ header {
 button {
   max-width: max-content;
   background: #01579b;
+  background: linear-gradient(to right, #01579b, #014980);
+
   padding: 0 14px;
   font-size: 13px;
   text-shadow: none;
@@ -457,13 +364,6 @@ ul li {
   margin-bottom: 10px;
 }
 
-.prompter {
-  max-width: 320px;
-  background: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  margin: 20px;
-}
 header h1 {
   font-family: Helvetica, Arial, sans-serif;
   font-size: 24px;
@@ -486,38 +386,23 @@ header h1 span {
   padding-right: 2px;
 }
 
-.promofooter {
-  display: flex;
-  flex-direction: column;
-}
-
-.promoheader {
-  flex-wrap: nowrap;
-  max-height: 70px;
-  flex: 0;
-}
-
 hr {
   border: 0;
   border-top: 1px solid #444;
   width: 100%;
 }
 
-.promosettings {
-  display: flex;
-}
-
 #__layout > div {
   display: flex;
+  flex-direction: column;
 }
 
 .content-container {
   flex: 1;
   display: flex;
-  flex-direction: column;
+  //flex-direction: column;
   position: relative;
   padding-left: 165px;
-  //padding-right: 220px;
 }
 .mega-sidebar,
 .toolbar {
@@ -526,8 +411,7 @@ hr {
   gap: 10px;
   justify-content: space-between;
   button {
-    height: 35px;
-    //min-width: 100px;
+    min-height: 35px;
     box-shadow: 0px 0px 0.9310142993927002px 0px rgba(0, 0, 0, 0.17),
       0px 0px 3.1270833015441895px 0px rgba(0, 0, 0, 0.08),
       0px 7px 14px 0px rgba(0, 0, 0, 0.05);
@@ -535,12 +419,14 @@ hr {
     align-items: center;
     justify-content: center;
     gap: 5px;
+    position: relative;
+
     svg {
       fill: #fff;
       width: 16px;
     }
     &.export-btn {
-      background: #388e3c;
+      background: linear-gradient(to right, #388e3c, #35873a);
       &:hover {
         background: #2e7532;
       }
@@ -561,11 +447,12 @@ hr {
         background: rgba(255, 255, 255, 0.25);
       }
       &.generate-btn {
-        background: linear-gradient(45deg, #01579b, #388e3c);
+        background: linear-gradient(-45deg, #01579b, #388e3c);
         border: 0;
         transition: all 0.2s linear;
+        min-width: 280px;
         &:hover {
-          background: linear-gradient(45deg, #013b67, #317134);
+          background: linear-gradient(-45deg, #013b67, #317134);
           transition: all 0.2s linear;
         }
       }
@@ -576,7 +463,10 @@ hr {
     gap: 10px;
   }
 }
-
+.toolbar {
+  user-select: none;
+  padding-left: 165px;
+}
 .mega-sidebar button {
   max-width: 100%;
   width: 100%;
@@ -683,15 +573,13 @@ button a {
 }
 
 .mega-sidebar {
-  width: 315px;
-  margin-left: 15px;
+  width: 335px;
+  margin-left: 10px;
+  margin-top: 8px;
   display: flex;
   gap: 18px;
-  //background: #111;
-
   flex-direction: column;
   justify-content: flex-start;
-  //box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.25);
   > div {
     display: flex;
     flex-direction: column;
@@ -707,14 +595,20 @@ button a {
 
 .recode-block {
   background: #111;
-  color: #aaa;
+  color: #bbb;
   border: 1px solid #333;
   border-radius: 2px;
+  border-top: 0;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
   padding: 10px;
   font-family: monospace;
   max-height: 150px;
   overflow: auto;
   font-size: 12px;
+  code {
+    color: #ddd;
+  }
 }
 
 pre {
@@ -732,5 +626,35 @@ pre {
     position: absolute;
     z-index: -1;
   }
+}
+
+.recode-block-container {
+  box-shadow: 0px 0px 0.9310142993927002px 0px rgba(0, 0, 0, 0.17),
+    0px 0px 3.1270833015441895px 0px rgba(0, 0, 0, 0.08),
+    0px 7px 14px 0px rgba(0, 0, 0, 0.05);
+}
+.mega-sidebar > div.chevrutton-container {
+  flex-direction: row;
+  button {
+  }
+}
+button.chevrutton {
+  width: 45px;
+  padding: 0px 0px 0px 10px;
+  z-index: 99;
+  background: transparent;
+  box-shadow: none;
+  padding-right: 5px;
+}
+
+.tag {
+  color: #569cd6;
+}
+.attr {
+  color: #9cdcfe;
+}
+
+.reval {
+  color: #ce9178;
 }
 </style>

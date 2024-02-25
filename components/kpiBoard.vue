@@ -1,6 +1,10 @@
 <template>
   <div style="flex: 1; position: relative">
-    <div class="container-grid-container" :style="{ 'max-width': `100%` }">
+    <div
+      class="container-grid-container"
+      :style="{ 'max-width': `100%` }"
+      ref="refocus"
+    >
       <div
         class="container-grid"
         :key="updated"
@@ -37,7 +41,7 @@
 
         <!-- Saved areas -->
         <section
-          v-for="(item, parent) in savedCells"
+          v-for="(item, parent) in $state.savedBlocks[data].savedCells"
           :ref="parent"
           :style="{
             'grid-area': item.area,
@@ -52,7 +56,7 @@
             <button
               class="delete"
               v-if="edit && internalLoading != parent"
-              @click="$delete(savedCells, parent)"
+              @click="$delete($state.savedBlocks[data].savedCells, parent)"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +75,9 @@
                 delete: true,
                 active: item.selectedTool === tool,
               }"
-              @click="savedCells[parent].selectedTool = tool"
+              @click="
+                $state.savedBlocks[data].savedCells[parent].selectedTool = tool
+              "
               v-for="(svg, tool) in areaTools"
               v-html="svg"
               v-if="item.generatedHtml != ''"
@@ -81,6 +87,7 @@
               class="delete generate"
               @click="getReply(parent)"
               :disabled="$state.apiKey === ''"
+              v-if="item.name != ''"
             >
               Generate
             </button>
@@ -113,8 +120,11 @@
             <div>
               <textarea
                 placeholder="Area Name"
-                v-model="savedCells[parent].promptText"
-                @keyup.enter="savedCells[parent].selectedTool = 'prompt'"
+                v-model="$state.savedBlocks[data].savedCells[parent].promptText"
+                @keyup.enter="
+                  $state.savedBlocks[data].savedCells[parent].selectedTool =
+                    'prompt'
+                "
               />
             </div>
           </div>
@@ -161,7 +171,7 @@
               v-model="gridData.rowAmount"
             />
           </p>
-          <textarea name="" id="" placeholder="Add description..."></textarea>
+          <textarea name="" id="" placeholder="Add prompt..."></textarea>
           <!--           <p>{{ gridData.rowHeightAmount }}px</p>
  -->
         </div>
@@ -175,8 +185,9 @@ export default {
   name: "IndexPage",
   props: {
     data: {
-      type: Object,
+      type: Number,
       required: false,
+      default: 0, // Provide a default value if appropriate
     },
     gridData: {
       type: Object,
@@ -202,7 +213,7 @@ export default {
       startX: "",
       startY: "",
       boardID: "",
-      savedCells: {},
+
       updated: 0,
       promptText: "",
       promptResponse: "",
@@ -222,7 +233,7 @@ export default {
   mounted() {
     this.loading = false;
   },
-
+  updated() {},
   methods: {
     handleRemove() {},
     async getReply(parent) {
@@ -255,7 +266,9 @@ IMPORTANT:
               },
               {
                 role: "user",
-                content: this.savedCells[parent].promptText,
+                content:
+                  this.$state.savedBlocks[this.data].savedCells[parent]
+                    .promptText,
               },
             ],
           }),
@@ -271,8 +284,10 @@ IMPORTANT:
         .replaceAll("```", "");
       this.promptText = "";
 
-      this.savedCells[parent].selectedTool = "preview";
-      this.savedCells[parent].generatedHtml = this.promptResponse;
+      this.$state.savedBlocks[this.data].savedCells[parent].selectedTool =
+        "preview";
+      this.$state.savedBlocks[this.data].savedCells[parent].generatedHtml =
+        this.promptResponse;
       this.internalLoading = false;
     },
     handleHeightAmount(event) {
@@ -302,15 +317,6 @@ IMPORTANT:
         console.error("Invalid column amount:", newColumnAmount);
       }
     },
-
-    clearBoard(cells) {
-      for (let cell in cells) {
-        this.$delete(this.savedCells, cell);
-      }
-      this.boardID = "";
-      this.$router.replace({ path: "" });
-    },
-
     getColStart(i) {
       var pepe = Math.ceil(i % this.gridData.columnAmount);
       if (pepe === 0) {
@@ -340,22 +346,35 @@ IMPORTANT:
         this.$refs.selecter.style.gridColumnStart +
         this.$refs.selecter.style.gridColumnEnd;
 
-      var newCell = {
-        area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
-        hasChart: false,
-        generatedHtml: "",
-        promptText: "",
-        selectedTool: "prompt",
-      };
-      this.$refs.selecter.style.gridRowStart = "";
-      this.$refs.selecter.style.gridRowEnd = "";
-      this.$refs.selecter.style.gridColumnStart = "";
-      this.$refs.selecter.style.gridColumnEnd = "";
-      this.$refs.selecter.style.display = "none";
+      // Calculate the size of the selected area
+      const rowStart = parseInt(this.$refs.selecter.style.gridRowStart);
+      const rowEnd = parseInt(this.$refs.selecter.style.gridRowEnd);
+      const colStart = parseInt(this.$refs.selecter.style.gridColumnStart);
+      const colEnd = parseInt(this.$refs.selecter.style.gridColumnEnd);
 
-      this.$set(this.savedCells, cellId, newCell);
+      // Check if the selected area is 1x1
+      if (rowEnd - rowStart === 1 && colEnd - colStart === 1) {
+      } else {
+        var newCell = {
+          area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
+          hasChart: false,
+          generatedHtml: "",
+          promptText: "",
+          selectedTool: "prompt",
+          name: "",
+        };
+        this.$refs.selecter.style.gridRowStart = "";
+        this.$refs.selecter.style.gridRowEnd = "";
+        this.$refs.selecter.style.gridColumnStart = "";
+        this.$refs.selecter.style.gridColumnEnd = "";
+        this.$refs.selecter.style.display = "none";
 
-      console.log(this.savedCells);
+        this.$set(
+          this.$state.savedBlocks[this.data].savedCells,
+          cellId,
+          newCell
+        );
+      }
     },
     hoverling(e) {
       if (this.dragging === true) {
@@ -383,10 +402,13 @@ IMPORTANT:
 .container-grid-container {
   margin: 0 auto;
   position: relative;
+  //box-shadow: inset 0 0 8px 0px rgba(0, 0, 0, 0.5);
 }
 .container-grid {
   display: grid;
   position: relative;
+  border-top: 1px solid #e9e9e9;
+  border-left: 1px solid #e9e9e9;
 
   //background: #fff;
 
@@ -446,13 +468,13 @@ IMPORTANT:
     background: #fff;
 
     outline: 1px solid #e9e9e9;
-    outline-offset: -1px;
+    //outline-offset: -1px;
 
     position: absolute;
     left: 0;
-    bottom: 0;
+    bottom: 1px;
     top: 0;
-    right: 0;
+    right: 1px;
     overflow: hidden;
     z-index: 999;
     &:hover {
@@ -477,7 +499,7 @@ IMPORTANT:
       display: none;
       border: 0;
 
-      border-left: 1px solid #e1b802;
+      //border-left: 1px solid #e1b802;
       &.disabled {
         pointer-events: none;
         svg {
@@ -638,7 +660,7 @@ button input[type="text"] {
   display: flex;
   position: absolute;
   z-index: 99;
-  left: -1px;
+  left: 0;
   right: 1px;
 
   pointer-events: none;
@@ -668,7 +690,7 @@ button input[type="text"] {
       content: "";
       width: 1px;
       height: 10px;
-      background: #bbb;
+      background: linear-gradient(#aaa, transparent);
       display: block;
     }
     &:first-child:after {
@@ -685,14 +707,14 @@ button input[type="text"] {
   left: 0;
   bottom: 0;
   top: 0;
-  z-index: 9999;
+  z-index: 99;
   user-select: none;
   pointer-events: none;
   &.right {
     left: initial;
     right: 0px;
     bottom: 1px;
-    top: -1px;
+    top: 0;
     > div {
       justify-content: flex-end;
     }
@@ -771,7 +793,7 @@ button input[type="text"] {
       content: "";
       height: 1px;
       width: 10px;
-      background: #bbb;
+      background: linear-gradient(to left, #aaa, transparent);
       display: block;
     }
     &:first-child:after {
@@ -811,5 +833,15 @@ button input[type="text"] {
   right: 0;
   border: 0;
   bottom: 0;
+}
+.horizontal-ruler.bottom > div:after {
+  background: linear-gradient(to top, #aaa, transparent);
+}
+.vertical-ruler > div:after {
+  background: linear-gradient(to right, #aaa, transparent);
+}
+
+.vertical-ruler.right > div:after {
+  background: linear-gradient(to left, #aaa, transparent);
 }
 </style>

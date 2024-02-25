@@ -1,5 +1,32 @@
 {
   "KpiBoard": {
     "description": "Auto imported from components/kpiBoard.vue"
+  },
+  "IconsChevronDown": {
+    "description": "Auto imported from components/icons/chevron-down.vue"
+  },
+  "IconsChevronUp": {
+    "description": "Auto imported from components/icons/chevron-up.vue"
+  },
+  "IconsCopy": {
+    "description": "Auto imported from components/icons/copy.vue"
+  },
+  "IconsEdit": {
+    "description": "Auto imported from components/icons/edit.vue"
+  },
+  "IconsEye": {
+    "description": "Auto imported from components/icons/eye.vue"
+  },
+  "IconsLeniologo": {
+    "description": "Auto imported from components/icons/leniologo.vue"
+  },
+  "IconsPlus": {
+    "description": "Auto imported from components/icons/plus.vue"
+  },
+  "IconsQuestion": {
+    "description": "Auto imported from components/icons/question.vue"
+  },
+  "IconsTrash": {
+    "description": "Auto imported from components/icons/trash.vue"
   }
 }

@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div style="flex: 1">
     <!--     <kpiSidebar />
  -->
     <div class="blocks-container">
       <kpiBoard
         edit
-        :data="{}"
+        :data="i"
         :gridData="block"
         v-for="(block, i) in $state.savedBlocks"
         :key="`${block.label}-${i}`"

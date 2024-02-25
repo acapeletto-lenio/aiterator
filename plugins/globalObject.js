@@ -22,13 +22,8 @@ var state = {
       label: "Grid #1",
       columnAmount: 12,
       rowHeightAmount: 50,
-      rowAmount: 12,
-    },
-    {
-      label: "Grid #2",
-      columnAmount: 6,
-      rowHeightAmount: 50,
-      rowAmount: 4,
+      rowAmount: 16,
+      savedCells: {},
     },
   ],
 };
