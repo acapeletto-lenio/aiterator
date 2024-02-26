@@ -109,9 +109,7 @@
             <button
               class="delete generate"
               @click="getReply(parent)"
-              :disabled="
-                $state.savedBlocks[data].savedCells[parent].label === ''
-              "
+              :disabled="$state.apiKey === ''"
             >
               Generate
             </button>

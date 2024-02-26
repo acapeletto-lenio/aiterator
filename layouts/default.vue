@@ -135,7 +135,7 @@
 &lt;/<span class="tag">main</span>&gt;</code></pre>
             </div>
           </div>
-          <div style="flex: 1" class="recode-block-container">
+          <div style="flex: 0" class="recode-block-container">
             <button
               class="reloading"
               :class="{ active: $state.loadingMasterPrompt }"
@@ -203,6 +203,8 @@ export default {
       this.$state.mainCode = "";
 
       this.$state.loadingMain = true;
+      await this.getMasterPrompt(this.$state.renderedCode);
+
       const completion = await fetch(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -323,7 +325,7 @@ html {
 }
 
 #Layer_1 {
-  width: 100px;
+  width: 150px;
   opacity: 0.9;
   left: -8px;
   margin: 3px 0;
