@@ -10,7 +10,16 @@
       }"
     >
       <template v-if="$state.mainTool === 'preview'">
-        <div class="main-container" v-html="$state.mainCode"></div>
+        <div class="preview-loader">
+          <div>🤖</div>
+          <div>Generating UI...</div>
+          <div>(it might take a while!)</div>
+        </div>
+        <div
+          class="main-container"
+          style="overflow: hidden"
+          v-html="$state.mainCode"
+        ></div>
       </template>
       <template v-if="$state.mainTool === 'canvas'">
         <kpiBoard
@@ -38,7 +47,7 @@ export default {
 .main-container {
   background: #fff;
   position: absolute;
-  top: 9px;
+  top: 8px;
   left: 0;
   bottom: 0;
   right: 0;
@@ -61,19 +70,41 @@ export default {
   //max-width: 1440px;
   margin: 8px auto;
   border-top: 1px solid #ddd;
-  &.loading {
-    &:after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.2);
+  .preview-loader {
+    display: none;
+  }
+  &.loading .main-container {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 4px,
+        rgba(0, 0, 0, 0.05) 6px
+      )
+      #fff;
+  }
+  &.loading .preview-loader {
+    z-index: 999;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    > div:first-child {
+      font-size: 40px;
+      animation: blink-animation 0.5s linear infinite;
+    }
+    > div:last-child {
+      color: #888;
     }
   }
   &.preview {
     background: #fff;
+    border-top: 0;
     .container-grid > i {
       border-color: transparent;
     }
@@ -93,6 +124,16 @@ export default {
     .container-grid-container {
       border-bottom: 1px solid #ddd;
     }
+  }
+}
+
+@keyframes blink-animation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
   }
 }
 </style>

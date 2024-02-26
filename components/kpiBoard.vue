@@ -142,7 +142,6 @@
               type="text"
               :ref="`input${parent}`"
               v-model="$state.savedBlocks[data].savedCells[parent].promptText"
-              @input="handleInput()"
               v-if="item.selectedTool != 'preview'"
             />
           </div>

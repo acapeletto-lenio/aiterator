@@ -140,6 +140,7 @@
               class="reloading"
               :class="{ active: $state.loadingMasterPrompt }"
               @click="getMasterPrompt($refs.codemagic.innerHTML)"
+              :disabled="$state.apiKey === ''"
             >
               <icons-loading />
             </button>
@@ -154,7 +155,7 @@
             </button>
             <div
               class="recode-block"
-              style="max-height: initial"
+              style="max-height: initial; padding-top: 0"
               :class="{ loading: $state.loadingMasterPrompt }"
             >
               {{ $state.remasterPrompt }}
@@ -187,19 +188,19 @@ export default {
     };
   },
   mounted() {
-    console.log(process);
     this.$nextTick(() => {
       if (this.$state.mainCode === "") {
-        this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+        this.$state.renderedCode = this.$refs.codemagic.innerText;
       }
     });
   },
   updated() {
-    this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+    this.$state.renderedCode = this.$refs.codemagic.innerText;
   },
   methods: {
     async mainGenerate() {
       this.$state.mainTool = "preview";
+      this.$state.mainCode = "";
 
       this.$state.loadingMain = true;
       const completion = await fetch(
@@ -215,17 +216,22 @@ export default {
             messages: [
               {
                 role: "system",
-                content:
-                  "Given the original HTML layout provided, enrich each section with content and styles, adhering to a minimalist aesthetic of simplicity and coherence. The design must enhance the visual and interactive experience without altering the HTML structure. Focus on a refined color palette that facilitates fluid transitions between elements while keeping the HTML layout intact.\n- Preserve HTML Layout: Ensure the existing HTML structure, including the main grid and its section divisions, remains unchanged. The creativity and style must fit within this predefined structure.\n- Color Scheme and Typography: Use a minimalist color scheme alongside sleek, modern typography to create a visually appealing interface that aligns with minimalist principles, enhancing readability and visual impact.\n- Content Integration: Populate each section with meaningful content like headings, text, and calls to action, respecting the layout's grid constraints. Arrange the content to balance visual appeal with functionality, showcasing the versatility of CSS Grid.\n- Visual Elements: Introduce high-quality images, icons, or graphics that complement the minimalist design. These elements should be placed to enhance the content without overwhelming the space and should integrate seamlessly with the overall design direction.\n- Interactive Elements: Implement interactive elements with subtle hover effects to engage users. These effects should be understated, aligning with the minimalist design ethos while providing clear user feedback.",
+                content: `For the user's layout provided, generate a UI component for each div that features a comment. Use that comment to generate beautiful and minimalistic HTML and CSS design. Each div needs to be filled with the UI component code
+                IMPORTANT:
+                - Keep the provided HTML layout intact, but filling the sections with content, then follow with the CSS code within <style></style> tags.
+                - This code is intended for use in a V-HTML Vue element, so it should be valid for that context.
+                - Exclude any JavaScript or comments from your response.
+                - Include unique IDs for each element.
+                - AVOID ELEMENT SELECTORS
+                - The main container must be width: 100% and margin: 0 to fit its parent container fully.
+                - THE HEIGHT SHOULD COVER THE PARENT COMPLETELY
+                - You can use UNSPLASH when the word "images" is in the prompt
+                `,
               },
 
               {
                 role: "user",
-                content: this.$state.renderedCode,
-              },
-              {
-                role: "user",
-                content: this.$state.remasterPrompt,
+                content: `${this.$state.renderedCode}`,
               },
             ],
           }),
@@ -233,7 +239,13 @@ export default {
       ).then((resp) => resp.json());
 
       const obj = completion.choices[0].message.content;
-      this.$state.mainCode = obj;
+      this.$state.mainCode = obj
+        .replaceAll("```html", "")
+        .replaceAll("HTML:", "")
+        .replaceAll("CSS:", "")
+        .replaceAll("```css", "")
+        .replaceAll("```", "");
+      console.log(obj);
       this.$state.loadingMain = false;
     },
     async getMasterPrompt(parent) {
