@@ -20,6 +20,9 @@
   "IconsLeniologo": {
     "description": "Auto imported from components/icons/leniologo.vue"
   },
+  "IconsLoading": {
+    "description": "Auto imported from components/icons/loading.vue"
+  },
   "IconsPlus": {
     "description": "Auto imported from components/icons/plus.vue"
   },

@@ -3,8 +3,11 @@ import Vue from "vue";
 var state = {
   updated: 0,
   isOpen: false,
-  apiKey: "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",
+  apiKey: "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",
   mainTool: "canvas",
+  remasterPrompt: "",
+  renderedCode: "",
+  loadingMasterPrompt: false,
   savedBlocks: [
     /*     {
       label: "Header",
@@ -22,15 +25,7 @@ var state = {
       label: "",
       columnAmount: 12,
       rowHeightAmount: 50,
-      rowAmount: 12,
-      savedCells: {},
-      blockPrompt: "",
-    },
-    {
-      label: "",
-      columnAmount: 6,
-      rowHeightAmount: 50,
-      rowAmount: 4,
+      rowAmount: 16,
       savedCells: {},
       blockPrompt: "",
     },

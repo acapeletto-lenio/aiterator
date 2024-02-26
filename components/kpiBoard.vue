@@ -41,10 +41,10 @@
         >
           <div>
             <input
-              placeholder="Enter name..."
+              placeholder="Enter description..."
               v-model="tempLabel"
               v-if="tempActive"
-              @keyup.enter="handleSave()"
+              @input="handleSave()"
               ref="tempInput"
             />
           </div>
@@ -61,13 +61,6 @@
                   d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
                 />
               </svg>
-            </button>
-            <button
-              class="delete generate"
-              @click="handleSave()"
-              :disabled="tempLabel === ''"
-            >
-              Save
             </button>
           </div>
         </div>
@@ -128,18 +121,16 @@
           <div class="internal-loading" v-if="internalLoading === parent"></div>
 
           <!-- Preview -->
-          <div style="overflow: hidden">
-            <div
-              class="generatedContent"
-              style="display: contents"
-              v-html="item.generatedHtml"
-              v-if="
-                internalLoading != parent &&
-                ($state.mainTool === 'preview' ||
-                  item.selectedTool === 'preview')
-              "
-            ></div>
-          </div>
+
+          <div
+            class="generatedContent"
+            style="display: contents"
+            v-html="item.generatedHtml"
+            v-if="
+              internalLoading != parent &&
+              ($state.mainTool === 'preview' || item.selectedTool === 'preview')
+            "
+          ></div>
 
           <!-- Prompt -->
           <div
@@ -147,30 +138,13 @@
             @click.self="$refs[`input${parent}`][0].focus()"
             v-if="internalLoading != parent && $state.mainTool === 'canvas'"
           >
-            <div
-              class="magic-editable first"
-              contenteditable="true"
-              v-contenteditable="
-                $state.savedBlocks[data].savedCells[parent].label
-              "
-              @input="
-                $state.savedBlocks[data].savedCells[parent].label =
-                  $event.target.innerText
-              "
-            ></div>
-            <div
-              class="magic-editable"
-              contenteditable="true"
-              v-contenteditable="
-                $state.savedBlocks[data].savedCells[parent].promptText
-              "
-              @input="
-                $state.savedBlocks[data].savedCells[parent].promptText =
-                  $event.target.innerText
-              "
+            <textarea
+              type="text"
               :ref="`input${parent}`"
-              tabindex="0"
-            ></div>
+              v-model="$state.savedBlocks[data].savedCells[parent].promptText"
+              @input="handleInput()"
+              v-if="item.selectedTool != 'preview'"
+            />
           </div>
         </section>
       </div>
@@ -227,7 +201,7 @@
           <textarea
             name=""
             id=""
-            placeholder="Add prompt..."
+            placeholder="Enter description..."
             v-model="gridData.blockPrompt"
           ></textarea>
         </div>
@@ -276,6 +250,8 @@ export default {
       initialHeight: "calc(100vh - 60px)",
       tempLabel: "",
       tempActive: false,
+      timeoutId: null,
+
       areaTools: {
         prompt:
           "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M3 16V15H18V16H3ZM3 12V11H15V12H3ZM3 8V7H21V8H3Z' fill='black'/></svg>",
@@ -289,6 +265,7 @@ export default {
   },
   mounted() {
     this.loading = false;
+    console.log(this.$state);
   },
   updated() {},
   directives: {
@@ -311,6 +288,53 @@ export default {
     },
   },
   methods: {
+    async getMasterPrompt(parent) {
+      this.$state.loadingMasterPrompt = true;
+
+      const completion = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.$state.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout. Provide multiple paragraphs with new lines.",
+              },
+              {
+                role: "user",
+                content: this.$state.renderedCode,
+              },
+            ],
+          }),
+        }
+      ).then((resp) => resp.json());
+
+      const obj = completion.choices[0].message.content;
+      this.$state.remasterPrompt = obj.replaceAll("Design prompt:", "");
+      this.$state.loadingMasterPrompt = false;
+    },
+    handleInput() {
+      // Clear the existing timeout, if there is one
+      if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+      }
+
+      // Set a new timeout
+      this.timeoutId = setTimeout(() => {
+        this.userFinishedTyping();
+      }, 1000); // Delay in milliseconds after which to consider typing finished
+    },
+    async userFinishedTyping() {
+      await this.getMasterPrompt();
+      // Run your function here
+    },
     handleTempDelete() {
       this.tempActive = false;
       this.tempLabel = "";
@@ -330,7 +354,7 @@ export default {
         area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
         hasChart: false,
         generatedHtml: "",
-        promptText: "",
+        promptText: this.tempLabel,
         selectedTool: "prompt",
         label: this.tempLabel,
       };
@@ -348,6 +372,7 @@ export default {
       });
     },
     handleRemove() {},
+
     async getReply(parent) {
       this.internalLoading = parent;
       const completion = await fetch(
@@ -395,7 +420,8 @@ export default {
         .replaceAll("```", "");
       this.promptText = "";
 
-      this.$state.mainTool = "preview";
+      this.$state.savedBlocks[this.data].savedCells[parent].selectedTool =
+        "preview";
       this.$state.savedBlocks[this.data].savedCells[parent].generatedHtml =
         this.promptResponse;
       this.internalLoading = false;
@@ -446,7 +472,7 @@ export default {
       this.$refs.selecter.style.gridRowEnd = e.target.dataset.rowEnd;
       this.$refs.selecter.style.gridColumnStart = e.target.dataset.colStart;
       this.$refs.selecter.style.gridColumnEnd = e.target.dataset.colEnd;
-      this.$refs.selecter.style.display = "block";
+      this.$refs.selecter.style.display = "flex";
     },
     endDrag(e) {
       this.dragging = false;
@@ -499,7 +525,7 @@ export default {
 .container-grid {
   display: grid;
   position: relative;
-  border-top: 1px solid #e9e9e9;
+  //border-top: 1px solid #e9e9e9;
   border-left: 1px solid #e9e9e9;
 
   //background: #fff;
@@ -538,7 +564,7 @@ export default {
         display: none;
       }
       &.lastrow {
-        border-bottom: 0;
+        border-bottom: 1px solid #ccc;
       }
       &.lastcol {
         border-right: 0;
@@ -731,6 +757,19 @@ export default {
     pre {
       color: #333;
       padding: 15px;
+    }
+  }
+  input {
+    border: 0;
+    padding: 0;
+    font-family: monospace;
+    top: 0;
+    left: 0;
+    position: absolute;
+    padding: 10px;
+    background: transparent;
+    &:focus {
+      outline: 0;
     }
   }
   h2 {
@@ -985,7 +1024,7 @@ button input[type="text"] {
 }
 
 .seleccionador textarea {
-  color: #888;
+  color: #444;
   padding-top: 10px;
   position: absolute;
   left: 0;
@@ -1021,7 +1060,7 @@ input.block-label::placeholder {
   color: #ccc;
 }
 .container-grid .selecter-cell.active input::placeholder {
-  color: #aaa;
+  color: #888;
 }
 .dimensions-container {
   svg {
@@ -1046,7 +1085,7 @@ input.block-label::placeholder {
     outline: 0;
   }
   &:empty:after {
-    content: "Enter Prompt...";
+    content: "Add description...";
     color: #888;
   }
 

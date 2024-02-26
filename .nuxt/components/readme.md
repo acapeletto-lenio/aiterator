@@ -13,6 +13,7 @@ You can directly use them in pages and other components without the need to impo
 - `<IconsEdit>` | `<icons-edit>` (components/icons/edit.vue)
 - `<IconsEye>` | `<icons-eye>` (components/icons/eye.vue)
 - `<IconsLeniologo>` | `<icons-leniologo>` (components/icons/leniologo.vue)
+- `<IconsLoading>` | `<icons-loading>` (components/icons/loading.vue)
 - `<IconsPlus>` | `<icons-plus>` (components/icons/plus.vue)
 - `<IconsQuestion>` | `<icons-question>` (components/icons/question.vue)
 - `<IconsRefresh>` | `<icons-refresh>` (components/icons/refresh.vue)

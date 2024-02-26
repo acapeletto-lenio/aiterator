@@ -44,6 +44,7 @@ export default {
     0 0/16px 16px #fff;
   //max-width: 1440px;
   margin: 8px auto;
+  border-top: 1px solid #ddd;
   &.preview {
     background: #fff;
     .container-grid > i {
@@ -51,7 +52,7 @@ export default {
     }
   }
   .container-grid-container {
-    border-top: 1px solid #ddd;
+    //border-top: 1px solid #ddd;
   }
   > div:first-child {
     .container-grid-container {

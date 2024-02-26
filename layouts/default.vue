@@ -19,16 +19,12 @@
           @click="
             $state.savedBlocks = [
               {
-                label: 'Grid #1',
+                label: '',
                 columnAmount: 12,
                 rowHeightAmount: 50,
-                rowAmount: 12,
-              },
-              {
-                label: 'Grid #2',
-                columnAmount: 6,
-                rowHeightAmount: 50,
-                rowAmount: 4,
+                rowAmount: 16,
+                savedCells: {},
+                blockPrompt: '',
               },
             ]
           "
@@ -71,7 +67,7 @@
         </button> -->
         <button class="hire-btn">
           <a href="https://leniolabs.com" target="_blank">
-            Hire our dev team!</a
+            Hire our dev team! 🤓</a
           >
         </button>
         <button class="refresh-btn generate-btn">Generate Design 🤖</button>
@@ -122,15 +118,15 @@
               HTML & CSS
               <icons-copy style="position: absolute; right: 15px" />
             </button>
-            <div class="recode-block">
+            <div class="recode-block" ref="codemagic">
               <pre><code>&lt;<span class="tag">main</span>&gt;<template v-for="grid in $state.savedBlocks"> 
   &lt;<span class="tag">section</span><template v-if="grid.label != ''"> <span class="attr">class</span>="<span class="reval">{{grid.label}}</span>"</template> <span class="attr">style</span>="<span class="attr">display</span>: <span class="reval">grid</span>;
     <span class="attr">grid-template-columns</span>: <span class="reval">repeat({{grid.columnAmount}}, 1fr)</span>;
     <span class="attr">grid-template-rows</span>: <span class="reval">repeat({{grid.rowAmount}}, {{grid.rowHeightAmount}}px)</span>;
   "&gt;<template v-if="grid.blockPrompt != ''">
     <span class="attr-comment">&lt;!-- {{grid.blockPrompt}} --&gt;</span></template><template v-for="area in grid.savedCells">
-    &lt;<span class="tag">div</span> <span class="attr">class</span>="<span class="reval">{{area.label}}</span>" <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;<template v-if="area.promptText != ''">
-    <span class="attr-comment">&lt;!-- {{area.promptText}} --&gt;</span></template>
+    &lt;<span class="tag">div</span> <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;<template v-if="area.promptText != ''">
+      <span class="attr-comment">&lt;!-- {{area.promptText}} --&gt;</span></template>
     &lt;/<span class="tag">div</span>&gt;</template>
   &lt;/<span class="tag">section</span>&gt;</template>
 &lt;/<span class="tag">main</span>&gt;</code></pre>
@@ -143,30 +139,23 @@
                 border-bottom-left-radius: 0;
               "
             >
+              <icons-loading
+                v-if="$state.loadingMasterPrompt"
+                style="
+                  position: absolute;
+                  left: 15px;
+                  animation: rotateAnimation 2s linear infinite;
+                "
+              />
               AI Prompt
               <icons-copy style="position: absolute; right: 15px" />
             </button>
-            <div class="recode-block" style="max-height: initial">
-              "Create a flexible web interface that efficiently utilizes a grid
-              layout defined within a &lt;main&gt; element, featuring a
-              &lt;section&gt; that employs CSS grid styling. This grid is
-              structured to have 12 columns of equal width and 16 rows, each 50
-              pixels high. The design should be adaptable, capable of supporting
-              a diverse range of content types including text, images, and
-              interactive elements.
-              <br /><br />
-              The objective is to craft a clean, user-friendly layout that can
-              serve multiple purposes. The interface should prioritize ease of
-              navigation and clarity, ensuring that content is accessible and
-              engaging for users across various devices. Emphasize the use of
-              space, color, and typography to create a visually appealing
-              environment that enhances the content displayed within each grid
-              cell.
-              <br /><br />
-              Ensure the design is responsive, adapting smoothly to different
-              screen sizes, and incorporates interactive features that enhance
-              user engagement. The layout should be scalable, allowing for easy
-              updates and modifications as the content evolves."
+            <div
+              class="recode-block"
+              style="max-height: initial"
+              :class="{ loading: $state.loadingMasterPrompt }"
+            >
+              {{ $state.remasterPrompt }}
             </div>
           </div>
 
@@ -195,8 +184,47 @@ export default {
       markSpacing: 5,
     };
   },
-
+  mounted() {
+    this.$nextTick(() => {
+      this.getMasterPrompt(this.$refs.codemagic.innerHTML);
+      this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+    });
+  },
+  updated() {
+    this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+  },
   methods: {
+    async getMasterPrompt(parent) {
+      this.$state.loadingMasterPrompt = true;
+      const completion = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.$state.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout.",
+              },
+              {
+                role: "user",
+                content: parent,
+              },
+            ],
+          }),
+        }
+      ).then((resp) => resp.json());
+
+      const obj = completion.choices[0].message.content;
+      this.$state.remasterPrompt = obj;
+      this.$state.loadingMasterPrompt = false;
+    },
     handleAdd() {
       this.$state.savedBlocks.push({
         label: `Grid #${this.$state.savedBlocks.length + 1}`,
@@ -211,6 +239,14 @@ export default {
 };
 </script>
 <style lang="scss">
+@keyframes rotateAnimation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 .st0 {
   fill: #fff;
 }
@@ -356,7 +392,7 @@ header h2 {
 
 header h1 span {
   font-weight: 600;
-  padding-right: 2px;
+  padding-right: 1px;
 }
 
 hr {
@@ -406,7 +442,7 @@ hr {
     }
     &.hire-btn {
       background: #c2185b;
-      min-width: 200px;
+      min-width: 220px;
       &:hover {
         background: #a3144d;
       }
@@ -582,6 +618,9 @@ button a {
   overflow: auto;
   font-size: 12px;
   height: 100%;
+  white-space: pre-line;
+  position: relative;
+
   code {
     color: #bbb;
   }
