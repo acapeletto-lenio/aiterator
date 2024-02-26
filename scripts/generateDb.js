@@ -17,8 +17,9 @@ function writeFileSyncRecursive(filename, content, charset) {
 }
 
 async function processFolders() {
-  const pepe = process.env.OPENAI;
-  writeFileSyncRecursive(`./static/ai.json`, pepe);
+  writeFileSyncRecursive(`./static/ai.json`, {
+    data: process.env.OPENAI,
+  });
   console.log("\x1b[46m", `✓ Folders generated`, "\x1b[0m");
 }
 

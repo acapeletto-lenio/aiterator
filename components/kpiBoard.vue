@@ -300,7 +300,7 @@ export default {
             Authorization: `Bearer ${this.$state.apiKey}`,
           },
           body: JSON.stringify({
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-0125",
             messages: [
               {
                 role: "system",
@@ -384,7 +384,7 @@ export default {
             Authorization: `Bearer ${this.$state.apiKey}`,
           },
           body: JSON.stringify({
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-0125",
             messages: [
               {
                 role: "system",

@@ -70,7 +70,9 @@
             Hire our dev team! 🤓</a
           >
         </button>
-        <button class="refresh-btn generate-btn">Generate Design 🤖</button>
+        <button class="refresh-btn generate-btn" @click="mainGenerate()">
+          Generate Design 🤖
+        </button>
         <button
           @click="isOpen = !isOpen"
           class="refresh-btn"
@@ -120,7 +122,8 @@
             </button>
             <div class="recode-block" ref="codemagic">
               <pre><code>&lt;<span class="tag">main</span>&gt;<template v-for="grid in $state.savedBlocks"> 
-  &lt;<span class="tag">section</span><template v-if="grid.label != ''"> <span class="attr">class</span>="<span class="reval">{{grid.label}}</span>"</template> <span class="attr">style</span>="<span class="attr">display</span>: <span class="reval">grid</span>;
+  &lt;<span class="tag">section</span><template v-if="grid.label != ''"> <span class="attr">class</span>="<span class="reval">{{grid.label}}</span>"</template> <span class="attr">style</span>="
+    <span class="attr">display</span>: <span class="reval">grid</span>;
     <span class="attr">grid-template-columns</span>: <span class="reval">repeat({{grid.columnAmount}}, 1fr)</span>;
     <span class="attr">grid-template-rows</span>: <span class="reval">repeat({{grid.rowAmount}}, {{grid.rowHeightAmount}}px)</span>;
   "&gt;<template v-if="grid.blockPrompt != ''">
@@ -134,19 +137,18 @@
           </div>
           <div style="flex: 1" class="recode-block-container">
             <button
+              class="reloading"
+              :class="{ active: $state.loadingMasterPrompt }"
+              @click="getMasterPrompt($refs.codemagic.innerHTML)"
+            >
+              <icons-loading />
+            </button>
+            <button
               style="
                 border-bottom-right-radius: 0;
                 border-bottom-left-radius: 0;
               "
             >
-              <icons-loading
-                v-if="$state.loadingMasterPrompt"
-                style="
-                  position: absolute;
-                  left: 15px;
-                  animation: rotateAnimation 2s linear infinite;
-                "
-              />
               AI Prompt
               <icons-copy style="position: absolute; right: 15px" />
             </button>
@@ -186,14 +188,53 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.getMasterPrompt(this.$refs.codemagic.innerHTML);
-      this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+      if (this.$state.mainCode === "") {
+        this.$state.renderedCode = this.$refs.codemagic.innerHTML;
+      }
     });
   },
   updated() {
     this.$state.renderedCode = this.$refs.codemagic.innerHTML;
   },
   methods: {
+    async mainGenerate() {
+      this.$state.mainTool = "preview";
+
+      this.$state.loadingMain = true;
+      const completion = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.$state.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo-0125",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Given the original HTML layout provided, enrich each section with content and styles, adhering to a minimalist aesthetic of simplicity and coherence. The design must enhance the visual and interactive experience without altering the HTML structure. Focus on a refined color palette that facilitates fluid transitions between elements while keeping the HTML layout intact.\n- Preserve HTML Layout: Ensure the existing HTML structure, including the main grid and its section divisions, remains unchanged. The creativity and style must fit within this predefined structure.\n- Color Scheme and Typography: Use a minimalist color scheme alongside sleek, modern typography to create a visually appealing interface that aligns with minimalist principles, enhancing readability and visual impact.\n- Content Integration: Populate each section with meaningful content like headings, text, and calls to action, respecting the layout's grid constraints. Arrange the content to balance visual appeal with functionality, showcasing the versatility of CSS Grid.\n- Visual Elements: Introduce high-quality images, icons, or graphics that complement the minimalist design. These elements should be placed to enhance the content without overwhelming the space and should integrate seamlessly with the overall design direction.\n- Interactive Elements: Implement interactive elements with subtle hover effects to engage users. These effects should be understated, aligning with the minimalist design ethos while providing clear user feedback.",
+              },
+
+              {
+                role: "user",
+                content: this.$state.renderedCode,
+              },
+              {
+                role: "user",
+                content: this.$state.remasterPrompt,
+              },
+            ],
+          }),
+        }
+      ).then((resp) => resp.json());
+
+      const obj = completion.choices[0].message.content;
+      this.$state.mainCode = obj;
+      this.$state.loadingMain = false;
+    },
     async getMasterPrompt(parent) {
       this.$state.loadingMasterPrompt = true;
       const completion = await fetch(
@@ -205,12 +246,12 @@ export default {
             Authorization: `Bearer ${this.$state.apiKey}`,
           },
           body: JSON.stringify({
-            model: "gpt-3.5-turbo",
+            model: "gpt-3.5-turbo-0125",
             messages: [
               {
                 role: "system",
                 content:
-                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout.",
+                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout. Do not say 'design prompt' at the beggining",
               },
               {
                 role: "user",
@@ -612,15 +653,21 @@ button a {
   border-top: 0;
   border-top-right-radius: 0;
   border-top-left-radius: 0;
-  padding: 10px;
+  padding: 12px;
   font-family: monospace;
-  max-height: 200px;
+  max-height: 220px;
   overflow: auto;
   font-size: 12px;
   height: 100%;
   white-space: pre-line;
   position: relative;
-
+  transition: color 0.25s linear;
+  &.loading {
+    color: #666;
+    code {
+      color: #666;
+    }
+  }
   code {
     color: #bbb;
   }
@@ -647,6 +694,7 @@ pre {
   box-shadow: 0px 0px 0.9310142993927002px 0px rgba(0, 0, 0, 0.17),
     0px 0px 3.1270833015441895px 0px rgba(0, 0, 0, 0.08),
     0px 7px 14px 0px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 .mega-sidebar > div.chevrutton-container {
   flex-direction: row;
@@ -675,5 +723,18 @@ button.chevrutton {
 }
 .reval {
   color: #ce9178;
+}
+
+.mega-sidebar button.reloading {
+  position: absolute;
+  background: none;
+  box-shadow: none;
+  max-width: max-content;
+  left: 0;
+  z-index: 99;
+  padding-right: 50px;
+  &.active svg {
+    animation: rotateAnimation 2s linear infinite;
+  }
 }
 </style>

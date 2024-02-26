@@ -1,18 +1,26 @@
 <template>
-  <div style="flex: 1">
+  <div style="flex: 1; position: relative">
     <!--     <kpiSidebar />
  -->
     <div
       class="blocks-container"
-      :class="{ preview: $state.mainTool === 'preview' }"
+      :class="{
+        preview: $state.mainTool === 'preview',
+        loading: $state.loadingMain,
+      }"
     >
-      <kpiBoard
-        edit
-        :data="i"
-        :gridData="block"
-        v-for="(block, i) in $state.savedBlocks"
-        :key="`block-${i}`"
-      />
+      <template v-if="$state.mainTool === 'preview'">
+        <div class="main-container" v-html="$state.mainCode"></div>
+      </template>
+      <template v-if="$state.mainTool === 'canvas'">
+        <kpiBoard
+          edit
+          :data="i"
+          :gridData="block"
+          v-for="(block, i) in $state.savedBlocks"
+          :key="`block-${i}`"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -27,6 +35,14 @@ export default {
 </script>
 
 <style lang="scss">
+.main-container {
+  background: #fff;
+  position: absolute;
+  top: 9px;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
 .blocks-container {
   box-shadow: 0px 0px 10px 0px #000;
   background: #fff;
@@ -45,6 +61,17 @@ export default {
   //max-width: 1440px;
   margin: 8px auto;
   border-top: 1px solid #ddd;
+  &.loading {
+    &:after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
   &.preview {
     background: #fff;
     .container-grid > i {
