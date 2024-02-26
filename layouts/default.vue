@@ -283,7 +283,7 @@ export default {
     },
     handleAdd() {
       this.$state.savedBlocks.push({
-        label: `Grid #${this.$state.savedBlocks.length + 1}`,
+        label: "",
         columnAmount: 6,
         rowHeightAmount: 50,
         rowAmount: 4,
