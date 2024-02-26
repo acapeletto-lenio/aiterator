@@ -187,6 +187,7 @@ export default {
     };
   },
   mounted() {
+    console.log(process);
     this.$nextTick(() => {
       if (this.$state.mainCode === "") {
         this.$state.renderedCode = this.$refs.codemagic.innerHTML;
