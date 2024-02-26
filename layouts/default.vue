@@ -55,7 +55,7 @@
         </div>
       </div>
       <div class="right-toolbar">
-        <!--         <button class="refresh-btn" style="border: 0; padding: 0">
+        <button class="refresh-btn" style="border: 0; padding: 0">
           <icons-question />
         </button>
         <button class="refresh-btn">
@@ -64,12 +64,8 @@
             placeholder="Your OpenAI API Key..."
             v-model="$state.apiKey"
           />
-        </button> -->
-        <button class="hire-btn">
-          <a href="https://leniolabs.com" target="_blank">
-            Hire our dev team! 🤓</a
-          >
         </button>
+
         <button class="refresh-btn generate-btn" @click="mainGenerate()">
           Generate Design 🤖
         </button>
@@ -161,7 +157,7 @@
             </div>
           </div>
 
-          <!--           <div style="margin-top: auto">
+          <div style="margin-top: auto">
             <i>Built with <span style="color: #c2185b">&hearts;</span> by</i>
             <icons-leniologo />
             <button class="hire-btn">
@@ -169,7 +165,7 @@
                 >Hire our dev team!</a
               >
             </button>
-          </div> -->
+          </div>
         </div>
       </template>
     </div>
@@ -311,9 +307,10 @@ html {
 }
 
 #Layer_1 {
-  width: 160px;
+  width: 100px;
   opacity: 0.9;
-  left: -10px;
+  left: -8px;
+  margin: 3px 0;
   position: relative;
   cursor: pointer;
   &:hover {
