@@ -17,7 +17,7 @@ function writeFileSyncRecursive(filename, content, charset) {
 }
 
 async function processFolders() {
-  console.log("renv", process.env.OPENAI);
+  console.log("renv", process.env.OPEN_AI);
   writeFileSyncRecursive(`./static/ai.json`, {
     data: process.env.OPENAI,
   });
