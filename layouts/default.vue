@@ -69,7 +69,7 @@
         <button
           class="refresh-btn generate-btn"
           @click="mainGenerate()"
-          :disabled="($state.apiKey = '')"
+          :disabled="$state.apiKey === ''"
         >
           Generate Design 🤖
         </button>
