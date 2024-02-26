@@ -14,7 +14,8 @@ export default {
       {
         hid: "description",
         name: "description",
-        content: "An interactive layout prompt generator.",
+        content:
+          "An interactive layout prompt generator. Define a grid and generate your design!",
       },
       { name: "format-detection", content: "telephone=no" },
     ],
