@@ -7,7 +7,7 @@ var state = {
   apiKey: "",
   mainTool: "canvas",
   remasterPrompt:
-    "Visualize a webpage layout with two major sections within a main grid. The structure, built with CSS Grid, creates a flexible framework.\n\nThe first section represents a larger grid. Imagine it as a matrix with 12 equal columns and 12 rows, where each row is 50 pixels tall. This structure generates a uniform and consistent layout that can accommodate versatile content.\n\nThe second section presents a smaller grid, featuring 6 equal-width columns and 4 rows that are also 50 pixels tall. This smaller grid would sit inside the larger structure, providing a distinct subdivision within the overall layout.\n\nThe final design should highlight the modular nature of CSS grid layouts and exemplify how various sections with different grid specifications can share the same webpage space harmoniously.",
+    "Imagine a webpage layout where the main content area is divided into a grid with 12 columns and 16 rows. Each row has a height of 50px. Picture this grid structure as if you are organizing information on a digital bulletin board, where you can place different elements in a precise manner. The grid offers a structured canvas for arranging content in a neat and organized way. \n\nVisualize how various sections like text, images, buttons, or interactive elements could be placed within this grid layout to create a visually appealing and well-structured webpage design. Consider the possibilities of symmetry, balance, and creative placement of content within the defined grid structure to optimize the user experience and visual appeal of the webpage.",
   renderedCode: "",
   loadingMasterPrompt: false,
   loadingMain: false,

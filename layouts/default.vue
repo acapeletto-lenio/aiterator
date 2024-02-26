@@ -264,7 +264,7 @@ export default {
               {
                 role: "system",
                 content:
-                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout. Do not say 'design prompt' at the beggining",
+                  "Based on the provided HTML and CSS code, create a design prompt suitable for generating a visual representation. The code outlines a web page layout using CSS Grid, specifying the structure and positioning of various sections within the page. Translate these technical details into a descriptive prompt that can be used to visualize the layout. Do not say 'design prompt' at the beggining. Be verbose.",
               },
               {
                 role: "user",
