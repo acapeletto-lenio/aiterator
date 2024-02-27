@@ -11,20 +11,7 @@ var state = {
   renderedCode: "",
   loadingMasterPrompt: false,
   loadingMain: false,
-  mainCode: "",
   savedBlocks: [
-    /*     {
-      label: "Header",
-      columnAmount: 4,
-      rowHeightAmount: 60,
-      rowAmount: 1,
-    },
-    {
-      label: "Hero",
-      columnAmount: 12,
-      rowHeightAmount: 50,
-      rowAmount: 6,
-    }, */
     {
       label: "",
       columnAmount: 12,

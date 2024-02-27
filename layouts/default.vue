@@ -34,8 +34,7 @@
         <div style="display: flex">
           <button
             class="refresh-btn"
-            :class="{ active: $state.mainTool === 'canvas' }"
-            @click="$state.mainTool = 'canvas'"
+            @click="setState('canvas')"
             style="
               border-right: 0;
               border-top-right-radius: 0;
@@ -46,8 +45,7 @@
           </button>
           <button
             class="refresh-btn"
-            :class="{ active: $state.mainTool === 'preview' }"
-            @click="$state.mainTool = 'preview'"
+            @click="setState('preview')"
             style="border-top-left-radius: 0; border-bottom-left-radius: 0"
           >
             <icons-eye />
@@ -84,27 +82,6 @@
       </div>
     </div>
     <div class="content-container">
-      <div
-        class="fake-modal"
-        style="display: none"
-        v-if="$state.mainTool === 'export'"
-      >
-        <div class="backdrop" @click="$state.mainTool = 'canvas'"></div>
-        <div class="fake-modal-content">
-          <div class="fake-modal-close" @click="$state.mainTool = 'canvas'">
-            ×
-          </div>
-
-          <h2>Export Code</h2>
-          <div>
-            <div class="code-block"></div>
-          </div>
-          <div class="fake-modal-actions">
-            <button @click="$state.mainTool = 'canvas'">Close</button>
-          </div>
-        </div>
-      </div>
-
       <template>
         <nuxt />
         <div class="mega-sidebar" v-if="isOpen">
@@ -198,6 +175,17 @@ export default {
     this.$state.renderedCode = this.$refs.codemagic.innerText;
   },
   methods: {
+    setState(tool) {
+      this.$state.mainTool = tool;
+      this.$state.savedBlocks.forEach((item) => {
+        for (let cellId in item.savedCells) {
+          if (item.savedCells.hasOwnProperty(cellId)) {
+            item.savedCells[cellId].selectedTool = tool;
+          }
+        }
+      });
+      console.log(this.$state.savedBlocks);
+    },
     async mainGenerate() {
       this.$state.mainTool = "preview";
       this.$state.mainCode = "";
@@ -272,25 +260,20 @@ export default {
         };
       }
 
-      for (let e = 0; e < this.$state.savedBlocks.length; e++) {
-        console.log("testing", this.$state.savedBlocks[e]);
-
-        Object.entries(this.$state.savedBlocks[e].savedCells).forEach(
-          ([key, value]) => {
-            Object.keys(reconstructedObject).forEach((insidekey) => {
-              if (insidekey === key) {
-                this.$set(
-                  this.$state.savedBlocks[e].savedCells[key],
-                  "html",
-                  reconstructedObject[insidekey].html
-                );
-              }
-            });
+      this.$state.savedBlocks.forEach((block) => {
+        Object.keys(block.savedCells).forEach((key) => {
+          if (reconstructedObject[key]) {
+            this.$set(
+              block.savedCells[key],
+              "html",
+              reconstructedObject[key].html
+            );
           }
-        );
-      }
-      console.log(this.$state.savedBlocks);
+        });
+      });
+
       this.$state.loadingMain = false;
+      this.setState("preview");
     },
     async getMasterPrompt(parent) {
       this.$state.loadingMasterPrompt = true;
