@@ -128,8 +128,8 @@
     <span class="attr">grid-template-rows</span>: <span class="reval">repeat({{grid.rowAmount}}, {{grid.rowHeightAmount}}px)</span>;
   "&gt;<template v-if="grid.blockPrompt != ''">
     <span class="attr-comment">&lt;!-- {{grid.blockPrompt}} --&gt;</span></template><template v-for="area in grid.savedCells">
-    &lt;<span class="tag">div</span> <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;<template v-if="area.promptText != ''">
-      <span class="attr-comment">&lt;!-- {{area.promptText}} --&gt;</span></template>
+    &lt;<span class="tag">div</span> <span class="attr">style</span>="<span class="attr">grid-area</span>: <span class="reval">{{area.area}}</span>"&gt;<template v-if="area.prompt != ''">
+      <span class="attr-comment">&lt;!-- {{area.prompt}} --&gt;</span></template>
     &lt;/<span class="tag">div</span>&gt;</template>
   &lt;/<span class="tag">section</span>&gt;</template>
 &lt;/<span class="tag">main</span>&gt;</code></pre>
@@ -205,6 +205,17 @@ export default {
       this.$state.loadingMain = true;
       await this.getMasterPrompt(this.$state.renderedCode);
 
+      const originalData = JSON.parse(JSON.stringify(this.$state.savedBlocks));
+      const transformedData = JSON.stringify(
+        originalData.flatMap((block) =>
+          Object.values(block.savedCells).map((cell) => ({
+            area: cell.area,
+            prompt: cell.prompt,
+            html: "",
+          }))
+        )
+      );
+      console.log(this.$state.savedBlocks);
       const completion = await fetch(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -218,22 +229,19 @@ export default {
             messages: [
               {
                 role: "system",
-                content: `For the user's layout provided, generate a UI component for each div that features a comment. Use that comment to generate beautiful and minimalistic HTML and CSS design. Each div needs to be filled with the UI component code
+                content: `For the JSON provided, populate each instance of [html] using [prompt] to generate beautiful HTML and CSS design.
+
                 IMPORTANT:
-                - Keep the provided HTML layout intact, but filling the sections with content, then follow with the CSS code within <style></style> tags.
+                - YOU MUST REPLY EXACTLY THIS ARRAY: ${transformedData}. DO NOT ADD OR REMOVE KEYS, JUST MODIFY HTML VALUE
                 - This code is intended for use in a V-HTML Vue element, so it should be valid for that context.
-                - Exclude any JavaScript or comments from your response.
-                - Include unique IDs for each element.
-                - AVOID ELEMENT SELECTORS
-                - The main container must be width: 100% and margin: 0 to fit its parent container fully.
-                - THE HEIGHT SHOULD COVER THE PARENT COMPLETELY
+                - USE NESTED HTML TO CREATE COMPLETE DESIGN. IT CAN BE AS DEEP AND COMPLEX AS NEEDED
+                - USE SINGLE QUOTES WHEN NEEDED
+                - Exclude any JavaScript or comments.
+                - USE ONLY INLINE STYLES
+                - DO NOT INCLUDE GRID-AREA INLINE
+                - The main container must cover its parent completely.
                 - You can use UNSPLASH when the word "images" is in the prompt
                 `,
-              },
-
-              {
-                role: "user",
-                content: `${this.$state.renderedCode}`,
               },
             ],
           }),
@@ -243,11 +251,45 @@ export default {
       const obj = completion.choices[0].message.content;
       this.$state.mainCode = obj
         .replaceAll("```html", "")
+        .replaceAll("```json", "")
         .replaceAll("HTML:", "")
+        .replaceAll("JSON:", "")
         .replaceAll("CSS:", "")
         .replaceAll("```css", "")
         .replaceAll("```", "");
-      console.log(obj);
+
+      const reconstructedArray = JSON.parse(this.$state.mainCode);
+      var reconstructedObject = {};
+
+      for (let i = 0; i < reconstructedArray.length; i++) {
+        const cellId = reconstructedArray[i].area
+          .replaceAll("/", "")
+          .replaceAll(" ", "");
+        reconstructedObject[cellId] = {
+          area: reconstructedArray[i].area,
+          prompt: reconstructedArray[i].prompt,
+          html: reconstructedArray[i].html,
+        };
+      }
+
+      for (let e = 0; e < this.$state.savedBlocks.length; e++) {
+        console.log("testing", this.$state.savedBlocks[e]);
+
+        Object.entries(this.$state.savedBlocks[e].savedCells).forEach(
+          ([key, value]) => {
+            Object.keys(reconstructedObject).forEach((insidekey) => {
+              if (insidekey === key) {
+                this.$set(
+                  this.$state.savedBlocks[e].savedCells[key],
+                  "html",
+                  reconstructedObject[insidekey].html
+                );
+              }
+            });
+          }
+        );
+      }
+      console.log(this.$state.savedBlocks);
       this.$state.loadingMain = false;
     },
     async getMasterPrompt(parent) {

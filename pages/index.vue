@@ -5,31 +5,25 @@
     <div
       class="blocks-container"
       :class="{
-        preview: $state.mainTool === 'preview',
         loading: $state.loadingMain,
       }"
     >
-      <template v-if="$state.mainTool === 'preview'">
+      <template v-if="$state.loadingMain">
         <div class="preview-loader">
-          <div>🤖</div>
-          <div>Generating UI...</div>
-          <div>(it might take a while!)</div>
+          <div class="preview-loader-content">
+            <div>🤖</div>
+            <div>Generating UI...</div>
+            <div>(this might take a while!)</div>
+          </div>
         </div>
-        <div
-          class="main-container"
-          style="overflow: hidden"
-          v-html="$state.mainCode"
-        ></div>
       </template>
-      <template v-if="$state.mainTool === 'canvas'">
-        <kpiBoard
-          edit
-          :data="i"
-          :gridData="block"
-          v-for="(block, i) in $state.savedBlocks"
-          :key="`block-${i}`"
-        />
-      </template>
+      <kpiBoard
+        edit
+        :data="i"
+        :gridData="block"
+        v-for="(block, i) in $state.savedBlocks"
+        :key="`block-${i}`"
+      />
     </div>
   </div>
 </template>
@@ -89,17 +83,43 @@ export default {
     position: absolute;
     left: 0;
     right: 0;
-    top: 40px;
+    top: 0;
+    bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    > div:first-child {
-      font-size: 40px;
-      animation: blink-animation 0.5s linear infinite;
+    padding-top: 65px;
+    z-index: 9999999;
+
+    .preview-loader-content {
+      border-radius: 10px;
+      overflow: hidden;
+      background-color: #fff;
+      padding: 30px 50px;
+      box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.15);
+      max-width: max-content;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 5px;
+      > div:first-child {
+        font-size: 50px;
+        animation: blink-animation 0.5s linear infinite;
+      }
+      > div:last-child {
+        color: #888;
+      }
     }
-    > div:last-child {
-      color: #888;
+    &:before {
+      content: "";
+      background: rgba(0, 0, 0, 0.2);
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
     }
   }
   &.preview {

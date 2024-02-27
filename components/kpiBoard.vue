@@ -24,7 +24,7 @@
           :data-col-end="getColStart(cells) + 1"
           :key="`cells-${cells}`"
           :class="{
-            active: $state.mainTool === 'canvas',
+            active: true,
             lastcol: getColStart(cells) === gridData.columnAmount,
             lastrow:
               Math.ceil(cells / gridData.columnAmount) === gridData.rowAmount,
@@ -40,7 +40,7 @@
           @click.self="$refs.tempInput.focus()"
         >
           <div>
-            <input
+            <textarea
               placeholder="Enter description..."
               v-model="tempLabel"
               v-if="tempActive"
@@ -74,75 +74,87 @@
           }"
           :key="parent"
         >
-          <!-- Area tools -->
-          <div
-            class="internal-tools-internal"
-            v-if="edit && internalLoading != parent"
-          >
-            <button
-              class="delete"
+          <template v-if="!$state.loadingMain">
+            <!-- Area tools -->
+            <div
+              class="internal-tools-internal"
               v-if="edit && internalLoading != parent"
-              @click="$delete($state.savedBlocks[data].savedCells, parent)"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24"
-                viewBox="0 -960 960 960"
-                width="24"
+              <button
+                class="delete"
+                v-if="edit && internalLoading != parent"
+                @click="$delete($state.savedBlocks[data].savedCells, parent)"
               >
-                <path
-                  d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
-                />
-              </svg>
-            </button>
-            <button
-              :class="{
-                delete: true,
-                active: item.selectedTool === tool,
-              }"
-              @click="
-                $state.savedBlocks[data].savedCells[parent].selectedTool = tool
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="24"
+                  viewBox="0 -960 960 960"
+                  width="24"
+                >
+                  <path
+                    d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"
+                  />
+                </svg>
+              </button>
+              <button
+                :class="{
+                  delete: true,
+                  active: item.selectedTool === tool,
+                }"
+                @click="
+                  $set(
+                    $state.savedBlocks[data].savedCells[parent],
+                    'selectedTool',
+                    tool
+                  )
+                "
+                v-for="(svg, tool) in areaTools"
+                v-html="svg"
+              ></button>
+              <button
+                class="delete generate"
+                @click="getReply(parent)"
+                :disabled="$state.apiKey === ''"
+              >
+                Generate
+              </button>
+            </div>
+
+            <!-- Loading -->
+            <div
+              class="internal-loading"
+              v-if="internalLoading === parent"
+            ></div>
+
+            <!-- Preview -->
+
+            <div
+              class="generatedContent"
+              style="display: contents"
+              v-html="item.html"
+              v-if="
+                internalLoading != parent &&
+                ($state.mainTool === 'preview' ||
+                  item.selectedTool === 'preview')
               "
-              v-for="(svg, tool) in areaTools"
-              v-html="svg"
-            ></button>
-            <button
-              class="delete generate"
-              @click="getReply(parent)"
-              :disabled="$state.apiKey === ''"
+            ></div>
+
+            <!-- Prompt -->
+            <div
+              class="seleccionador"
+              @click.self="$refs[`input${parent}`][0].focus()"
+              v-if="internalLoading != parent && $state.mainTool === 'canvas'"
             >
-              Generate
-            </button>
-          </div>
-
-          <!-- Loading -->
-          <div class="internal-loading" v-if="internalLoading === parent"></div>
-
-          <!-- Preview -->
-
-          <div
-            class="generatedContent"
-            style="display: contents"
-            v-html="item.generatedHtml"
-            v-if="
-              internalLoading != parent &&
-              ($state.mainTool === 'preview' || item.selectedTool === 'preview')
-            "
-          ></div>
-
-          <!-- Prompt -->
-          <div
-            class="seleccionador"
-            @click.self="$refs[`input${parent}`][0].focus()"
-            v-if="internalLoading != parent && $state.mainTool === 'canvas'"
-          >
-            <textarea
-              type="text"
-              :ref="`input${parent}`"
-              v-model="$state.savedBlocks[data].savedCells[parent].promptText"
-              v-if="item.selectedTool != 'preview'"
-            />
-          </div>
+              <textarea
+                type="text"
+                :ref="`input${parent}`"
+                v-model="$state.savedBlocks[data].savedCells[parent].prompt"
+                v-if="
+                  $state.mainTool === 'canvas' || item.selectedTool === 'canvas'
+                "
+              />
+            </div>
+          </template>
         </section>
       </div>
       <div class="horizontal-ruler">
@@ -155,7 +167,7 @@
           <span> {{ mark }} </span>
         </div>
       </div>
-      <div class="vertical-ruler" style="top: 0; bottom: 1px">
+      <div class="vertical-ruler" style="top: -1px; bottom: 1px">
         <div v-for="mark in gridData.rowAmount">
           <span>{{ mark }}</span>
         </div>
@@ -242,7 +254,7 @@ export default {
       boardID: "",
       textContent: "Edit me!",
       updated: 0,
-      promptText: "",
+      prompt: "",
       promptResponse: "",
       initialHeight: "calc(100vh - 60px)",
       tempLabel: "",
@@ -344,14 +356,14 @@ export default {
     handleSave(parent) {
       const cellId =
         this.$refs.selecter.style.gridRowStart +
-        this.$refs.selecter.style.gridRowEnd +
         this.$refs.selecter.style.gridColumnStart +
+        this.$refs.selecter.style.gridRowEnd +
         this.$refs.selecter.style.gridColumnEnd;
       var newCell = {
         area: `${this.$refs.selecter.style.gridRowStart} / ${this.$refs.selecter.style.gridColumnStart} / ${this.$refs.selecter.style.gridRowEnd} / ${this.$refs.selecter.style.gridColumnEnd}`,
         hasChart: false,
-        generatedHtml: "",
-        promptText: this.tempLabel,
+        html: "",
+        prompt: this.tempLabel,
         selectedTool: "prompt",
         label: this.tempLabel,
       };
@@ -400,8 +412,7 @@ export default {
               {
                 role: "user",
                 content:
-                  this.$state.savedBlocks[this.data].savedCells[parent]
-                    .promptText,
+                  this.$state.savedBlocks[this.data].savedCells[parent].prompt,
               },
             ],
           }),
@@ -415,11 +426,11 @@ export default {
         .replaceAll("CSS:", "")
         .replaceAll("```css", "")
         .replaceAll("```", "");
-      this.promptText = "";
+      this.prompt = "";
 
       this.$state.savedBlocks[this.data].savedCells[parent].selectedTool =
         "preview";
-      this.$state.savedBlocks[this.data].savedCells[parent].generatedHtml =
+      this.$state.savedBlocks[this.data].savedCells[parent].html =
         this.promptResponse;
       this.internalLoading = false;
     },
@@ -919,7 +930,7 @@ button input[type="text"] {
     left: initial;
     right: 0px;
     bottom: 1px;
-    top: 0;
+    top: -1px;
     > div {
       justify-content: flex-end;
     }
@@ -1020,6 +1031,7 @@ button input[type="text"] {
   }
 }
 
+.selecter-cell textarea,
 .seleccionador textarea {
   color: #444;
   padding-top: 10px;
