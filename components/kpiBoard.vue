@@ -678,7 +678,7 @@ export default {
 
     position: absolute;
     left: 0;
-    bottom: 1px;
+    bottom: 0;
     top: 0;
     right: 1px;
     overflow: hidden;
