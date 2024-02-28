@@ -165,7 +165,7 @@ export default {
     };
   },
   mounted() {
-    console.log($this.config);
+    console.log(this.$config);
     this.$nextTick(() => {
       if (this.$state.mainCode === "") {
         this.$state.renderedCode = this.$refs.codemagic.innerText;
