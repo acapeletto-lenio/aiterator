@@ -213,7 +213,7 @@ export default {
             messages: [
               {
                 role: "system",
-                content: `For the JSON provided, populate each instance of [html] using [prompt] to generate beautiful HTML and CSS design.
+                content: `For the JSON provided, populate each instance of [html] using [prompt] to generate beautiful HTML and CSS design. ${this.$state.remasterPrompt}
 
                 IMPORTANT:
                 - YOU MUST REPLY EXACTLY THIS ARRAY: ${transformedData}. DO NOT ADD OR REMOVE KEYS, JUST MODIFY HTML VALUE
