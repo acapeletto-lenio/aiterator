@@ -69,7 +69,7 @@
         <button
           class="refresh-btn generate-btn"
           @click="mainGenerate()"
-          :disabled="$state.apiKey === ''"
+          :disabled="JSON.stringify($state.savedBlocks[0].savedCells) === '{}'"
         >
           Generate Design 🤖
         </button>
