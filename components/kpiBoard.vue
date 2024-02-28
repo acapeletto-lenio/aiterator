@@ -106,8 +106,10 @@
                     tool
                 "
                 v-for="(svg, tool) in areaTools"
-                v-html="svg"
-              ></button>
+              >
+                <template v-if="tool === 'preview'"><icons-eye /></template>
+                <template v-if="tool === 'canvas'"><icons-edit /></template>
+              </button>
               <button
                 class="delete generate"
                 @click="getReply(parent)"

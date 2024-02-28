@@ -53,7 +53,7 @@
         </div>
       </div>
       <div class="right-toolbar">
-        <button class="refresh-btn" style="border: 0; padding: 0">
+        <!--         <button class="refresh-btn" style="border: 0; padding: 0">
           <icons-question />
         </button>
         <button class="refresh-btn">
@@ -62,8 +62,10 @@
             placeholder="Your OpenAI API Key..."
             v-model="$state.apiKey"
           />
+        </button> -->
+        <button class="hire-btn">
+          <a href="https://leniolabs.com" target="_blank">Hire our dev team!</a>
         </button>
-
         <button
           class="refresh-btn generate-btn"
           @click="mainGenerate()"
@@ -112,7 +114,7 @@
 &lt;/<span class="tag">main</span>&gt;</code></pre>
             </div>
           </div>
-          <div style="flex: 0" class="recode-block-container">
+          <div style="flex: 1" class="recode-block-container">
             <button
               class="reloading"
               :class="{ active: $state.loadingMasterPrompt }"
@@ -132,7 +134,7 @@
             </button>
             <div
               class="recode-block"
-              style="max-height: initial; padding-top: 0"
+              style="max-height: 450px; padding-top: 0"
               :class="{ loading: $state.loadingMasterPrompt }"
             >
               {{ $state.remasterPrompt }}
@@ -142,11 +144,6 @@
           <div style="margin-top: auto">
             <i>Built with <span style="color: #c2185b">&hearts;</span> by</i>
             <icons-leniologo />
-            <button class="hire-btn">
-              <a href="https://leniolabs.com" target="_blank"
-                >Hire our dev team!</a
-              >
-            </button>
           </div>
         </div>
       </template>
@@ -165,7 +162,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.$config);
     this.$nextTick(() => {
       if (this.$state.mainCode === "") {
         this.$state.renderedCode = this.$refs.codemagic.innerText;
@@ -185,7 +181,6 @@ export default {
           }
         }
       });
-      console.log(this.$state.savedBlocks);
     },
     async mainGenerate() {
       this.$state.mainTool = "preview";
@@ -204,7 +199,7 @@ export default {
           }))
         )
       );
-      console.log(this.$state.savedBlocks);
+      console.log(transformedData);
       const completion = await fetch(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -238,6 +233,8 @@ export default {
       ).then((resp) => resp.json());
 
       const obj = completion.choices[0].message.content;
+      console.log("obj", obj);
+
       this.$state.mainCode = obj
         .replaceAll("```html", "")
         .replaceAll("```json", "")
@@ -249,7 +246,6 @@ export default {
 
       const reconstructedArray = JSON.parse(this.$state.mainCode);
       var reconstructedObject = {};
-
       for (let i = 0; i < reconstructedArray.length; i++) {
         const cellId = reconstructedArray[i].area
           .replaceAll("/", "")
